@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: logistic-db
+    environment:
+      POSTGRES_DB: logistic_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - logistic-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: logistic-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: logistic_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      SHOW_SQL: "true"
+
+      # Server
+      SERVER_PORT: 8080
+
+      # JWT
+      JWT_SECRET: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+      JWT_EXPIRATION: 86400000
+      JWT_REFRESH_EXPIRATION: 604800000
+
+      # SIFEN
+      SIFEN_ENV: test
+      SIFEN_CERT_PASSWORD: test123
+      SIFEN_TIMBRADO: "12345678"
+      SIFEN_EMISOR_RUC: "80000000-1"
+      SIFEN_EMISOR_RAZON: "EMPRESA LOGISTICA S.A."
+      SIFEN_EMISOR_NOMBRE: "LOGISTICA"
+
+      # Grok API (opcional)
+      GROK_ENABLED: "false"
+
+      # Logging
+      LOG_LEVEL: DEBUG
+
+      # CORS
+      CORS_ORIGINS: "http://localhost:3000,http://localhost:8080"
+
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./certificates:/app/certificates
+      - ./logs:/app/logs
+    networks:
+      - logistic-network
+    restart: unless-stopped
+
+  # PgAdmin (opcional para gestión de DB)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: logistic-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@logistic.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    networks:
+      - logistic-network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  logistic-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

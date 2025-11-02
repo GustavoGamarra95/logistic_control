@@ -1,0 +1,75 @@
+# Compiled class files
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+log/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Certificates (NEVER commit real certificates!)
+certificates/*.p12
+certificates/*.pfx
+certificates/*.key
+certificates/*.crt
+!certificates/.gitkeep
+
+# Database
+*.db
+*.sqlite
+
+# Docker
+docker-compose.override.yml
+
+# Spring Boot
+application-*.yml
+!application-dev.yml
+!application-test.yml
+!application-prod.yml
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Build
+dist/
+build/
+
+# Test coverage
+.coverage
+htmlcov/

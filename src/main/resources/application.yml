@@ -1,0 +1,170 @@
+spring:
+  application:
+    name: logistic-control-system
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:logistic_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /api
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
+
+# SIFEN Configuration
+sifen:
+  environment: ${SIFEN_ENV:test} # test or prod
+  endpoints:
+    test:
+      recepcion: https://sifen-test.set.gov.py/de/ws/sync/recibe.wsdl
+      consulta-ruc: https://sifen-test.set.gov.py/de/ws/consultas/consulta-ruc.wsdl
+      consulta-cdc: https://sifen-test.set.gov.py/de/ws/consultas/consulta-cdc.wsdl
+      eventos: https://sifen-test.set.gov.py/de/ws/eventos/evento.wsdl
+      lote: https://sifen-test.set.gov.py/de/ws/async/recibe-lote.wsdl
+      lote-consulta: https://sifen-test.set.gov.py/de/ws/consultas/consulta-lote.wsdl
+    prod:
+      recepcion: https://sifen.set.gov.py/de/ws/sync/recibe.wsdl
+      consulta-ruc: https://sifen.set.gov.py/de/ws/consultas/consulta-ruc.wsdl
+      consulta-cdc: https://sifen.set.gov.py/de/ws/consultas/consulta-cdc.wsdl
+      eventos: https://sifen.set.gov.py/de/ws/eventos/evento.wsdl
+      lote: https://sifen.set.gov.py/de/ws/async/recibe-lote.wsdl
+      lote-consulta: https://sifen.set.gov.py/de/ws/consultas/consulta-lote.wsdl
+
+  # Certificate for signature (XAdES-BES)
+  certificate:
+    path: ${SIFEN_CERT_PATH:classpath:certificates/test-certificate.p12}
+    password: ${SIFEN_CERT_PASSWORD:test123}
+    alias: ${SIFEN_CERT_ALIAS:test}
+
+  # Timbrado (stamping number from SET)
+  timbrado:
+    numero: ${SIFEN_TIMBRADO:12345678} # Test timbrado
+    fecha-inicio: ${SIFEN_TIMBRADO_INICIO:2025-01-01}
+    fecha-fin: ${SIFEN_TIMBRADO_FIN:2025-12-31}
+
+  # Emisor data
+  emisor:
+    ruc: ${SIFEN_EMISOR_RUC:80000000-1}
+    razon-social: ${SIFEN_EMISOR_RAZON:EMPRESA LOGISTICA S.A.}
+    nombre-fantasia: ${SIFEN_EMISOR_NOMBRE:LOGISTICA}
+    dv: ${SIFEN_EMISOR_DV:1}
+    actividad: ${SIFEN_EMISOR_ACTIVIDAD:Servicios de logística}
+    direccion: ${SIFEN_EMISOR_DIRECCION:Asunción, Paraguay}
+    telefono: ${SIFEN_EMISOR_TELEFONO:+595211234567}
+    email: ${SIFEN_EMISOR_EMAIL:facturacion@logistica.com.py}
+    establecimiento: ${SIFEN_EMISOR_ESTABLECIMIENTO:001}
+    punto-expedicion: ${SIFEN_EMISOR_PUNTO:001}
+
+  # CDC (Control Document Code) configuration
+  cdc:
+    modulo: 11
+
+# Grok API Configuration (xAI)
+grok:
+  api:
+    enabled: ${GROK_ENABLED:false}
+    url: ${GROK_API_URL:https://api.x.ai/v1/chat/completions}
+    key: ${GROK_API_KEY:your-api-key-here}
+    model: ${GROK_MODEL:grok-4}
+    timeout: ${GROK_TIMEOUT:30000} # 30 seconds
+
+# JasperReports Configuration
+jasper:
+  reports-path: classpath:templates/reports/
+  images-path: classpath:static/images/
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.logistic.control: ${LOG_LEVEL:DEBUG}
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: ${SHOW_SQL:DEBUG}
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+  file:
+    name: logs/logistic-control.log
+    max-size: 10MB
+    max-history: 30
+
+# Application Custom Properties
+app:
+  version: 1.0.0
+  timezone: America/Asuncion
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:8080}
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: '*'
+    allow-credentials: true
+
+  # Business rules
+  business:
+    iva-rate: 0.10 # 10% IVA Paraguay
+    default-currency: PYG
+    stock-alert-threshold: 10
+
+  # File upload
+  upload:
+    max-file-size: 5MB
+    allowed-types: pdf,jpg,jpeg,png,doc,docx,xls,xlsx
