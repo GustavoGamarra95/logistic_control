@@ -161,6 +161,7 @@ public class Container extends BaseEntity {
 
     public void calcularPesoVolumen() {
         this.pesoKg = productos.stream()
+                .filter(p -> p.getPesoKg() != null)
                 .mapToDouble(p -> p.getPesoKg() * (p.getCantidadPorUnidad() != null ? p.getCantidadPorUnidad() : 1))
                 .sum();
 

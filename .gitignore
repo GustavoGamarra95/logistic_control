@@ -25,6 +25,8 @@ buildNumber.properties
 .classpath
 .project
 .settings/
+.claude
+.env
 
 # OS
 .DS_Store

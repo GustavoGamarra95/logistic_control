@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="inventario" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="30" rightMargin="30"
+              topMargin="20" bottomMargin="20">
+
+    <parameter name="FECHA_REPORTE" class="java.util.Date"/>
+    <parameter name="TITULO" class="java.lang.String"/>
+    <parameter name="TOTAL_ITEMS" class="java.lang.Integer"/>
+    <parameter name="VALOR_TOTAL" class="java.math.BigDecimal"/>
+    <parameter name="QR_CODE" class="java.io.InputStream"/>
+    <parameter name="VERIFICATION_CODE" class="java.lang.String"/>
+
+    <field name="producto" class="java.lang.String"/>
+    <field name="sku" class="java.lang.String"/>
+    <field name="categoria" class="java.lang.String"/>
+    <field name="stockDisponible" class="java.lang.Integer"/>
+    <field name="stockMinimo" class="java.lang.Integer"/>
+    <field name="precioUnitario" class="java.math.BigDecimal"/>
+    <field name="valorTotal" class="java.math.BigDecimal"/>
+    <field name="ubicacion" class="java.lang.String"/>
+
+    <title>
+        <band height="100">
+            <staticText>
+                <reportElement x="0" y="0" width="535" height="30"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[REPORTE DE INVENTARIO]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="35" width="400" height="20"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{TITULO}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="0" y="60" width="80" height="15"/>
+                <textElement><font isBold="true"/></textElement>
+                <text><![CDATA[Fecha:]]></text>
+            </staticText>
+            <textField pattern="dd/MM/yyyy HH:mm">
+                <reportElement x="80" y="60" width="150" height="15"/>
+                <textFieldExpression><![CDATA[$P{FECHA_REPORTE}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="0" y="80" width="80" height="15"/>
+                <textElement><font isBold="true"/></textElement>
+                <text><![CDATA[Total Items:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="80" y="80" width="100" height="15"/>
+                <textFieldExpression><![CDATA[$P{TOTAL_ITEMS}]]></textFieldExpression>
+            </textField>
+            <image scaleImage="RetainShape">
+                <reportElement x="435" y="0" width="100" height="100"/>
+                <imageExpression><![CDATA[$P{QR_CODE}]]></imageExpression>
+            </image>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="25">
+            <staticText>
+                <reportElement mode="Opaque" x="0" y="0" width="120" height="25" backcolor="#CCCCCC"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Producto]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" x="120" y="0" width="60" height="25" backcolor="#CCCCCC"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[SKU]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" x="180" y="0" width="70" height="25" backcolor="#CCCCCC"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Categoría]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" x="250" y="0" width="50" height="25" backcolor="#CCCCCC"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Stock]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" x="300" y="0" width="45" height="25" backcolor="#CCCCCC"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Mín.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" x="345" y="0" width="90" height="25" backcolor="#CCCCCC"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Precio Unit.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" x="435" y="0" width="100" height="25" backcolor="#CCCCCC"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font isBold="true" size="8"/></textElement>
+                <text><![CDATA[Valor Total]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="18">
+            <textField>
+                <reportElement x="0" y="0" width="120" height="18"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle" leftIndent="3"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{producto}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="120" y="0" width="60" height="18"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{sku}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="180" y="0" width="70" height="18"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{categoria}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="250" y="0" width="50" height="18"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{stockDisponible}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="300" y="0" width="45" height="18"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{stockMinimo}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0">
+                <reportElement x="345" y="0" width="90" height="18"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle" rightIndent="3"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{precioUnitario}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0">
+                <reportElement x="435" y="0" width="100" height="18"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle" rightIndent="3"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{valorTotal}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <summary>
+        <band height="80">
+            <staticText>
+                <reportElement x="335" y="10" width="100" height="20"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle" rightIndent="5"><font isBold="true"/></textElement>
+                <text><![CDATA[VALOR TOTAL:]]></text>
+            </staticText>
+            <textField pattern="#,##0">
+                <reportElement x="435" y="10" width="100" height="20"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle" rightIndent="5"><font isBold="true" size="11"/></textElement>
+                <textFieldExpression><![CDATA[$P{VALOR_TOTAL}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="0" y="45" width="535" height="12"/>
+                <textElement textAlignment="Center">
+                    <font size="8" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Documento verificable mediante código QR]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="57" width="535" height="12"/>
+                <textElement textAlignment="Center">
+                    <font size="7"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Código: " + $P{VERIFICATION_CODE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+</jasperReport>

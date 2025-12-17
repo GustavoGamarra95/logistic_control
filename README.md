@@ -1,246 +1,250 @@
 # Sistema de Gestión Logística con Integración SIFEN (Paraguay)
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Java](https://img.shields.io/badge/Java-21-orange.svg)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.5-brightgreen.svg)
+![Java](https://img.shields.io/badge/Java-25-orange.svg)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.0-brightgreen.svg)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-Sistema completo de gestión logística para empresas en Paraguay con integración total a **SIFEN** (Sistema Integrado de Facturación Electrónica Nacional) v150, cumpliendo con la normativa de la SET (Subsecretaría de Estado de Tributación).
+Proyecto backend Java Spring Boot para la gestión logística con integración completa a SIFEN (Sistema de Facturación Electrónica Nacional - Paraguay). Está pensado para entornos de prueba y producción, con autenticación JWT, cifrado de datos sensibles y migraciones con Flyway.
 
-## 🚀 Características Principales
+---
 
-### Módulos del Sistema
+## Contenido de este README
+- Requisitos
+- Inicio rápido (Docker y local)
+- Variables de entorno y `.env.example`
+- Migraciones (Flyway)
+- Documentación OpenAPI / Swagger
+- Endpoints principales y ejemplos curl
+- Seguridad y buenas prácticas
+- Checklist de verificación antes de desplegar
 
-1. **Gestión de Clientes/Empresas**
-   - Registro y validación de RUC con SIFEN (siConsRUC)
-   - Control de crédito y límites
-   - Historial completo de operaciones
+---
 
-2. **Gestión de Pedidos/Envíos**
-   - Tracking en tiempo real
-   - Control de estados (En Tránsito, Aduana, Entregado)
-   - Integración con containers
+## Requisitos
+- Java 25+
+- Maven 3.9+
+- Docker & Docker Compose (recomendado)
+- PostgreSQL 16 (si no usa Docker)
+- Git
 
-3. **Gestión de Containers**
-   - Consolidación y desconsolidación
-   - Tracking de llegadas y salidas
-   - Control de capacidad y ocupación
-
-4. **Inventario/Depósito**
-   - Control de ubicaciones (zonas, racks, niveles)
-   - Stock disponible y reservado
-   - Costos de almacenaje
-
-5. **Facturación Electrónica SIFEN**
-   - Generación de DE (Documentos Electrónicos)
-   - Firma digital XAdES-BES
-   - Envío y consulta a SIFEN
-   - Generación de CDC (Código de Control)
-   - PDF KuDE con QR
-   - Eventos (cancelación, inutilización)
-   - Procesamiento por lotes
-
-6. **Proveedores y Transportistas**
-   - Gestión de proveedores
-   - Control de pagos
-
-7. **Reportes y Analytics**
-   - Reportes financieros
-   - Análisis de rentabilidad
-   - Integración con Grok AI (xAI)
-
-### Integración SIFEN Completa
-
-- ✅ Emisión de Facturas Electrónicas (DE)
-- ✅ Firma digital XAdES-BES con certificado .p12
-- ✅ Generación de CDC con módulo 11
-- ✅ Envío a SIFEN (siRecepDE, siRecepLoteDE)
-- ✅ Consulta de RUC (siConsRUC)
-- ✅ Consulta de CDC (siConsCDC)
-- ✅ Eventos (siRecepEvento)
-- ✅ Generación de KuDE (PDF con QR)
-- ✅ Cumplimiento UBL 2.1 adaptado Paraguay
-
-## 🛠️ Stack Tecnológico
-
-### Backend
-- **Java 21** (Temurin JDK)
-- **Spring Boot 3.3.5**
-  - Spring Data JPA
-  - Spring Security + JWT
-  - Spring Web Services (SOAP para SIFEN)
-  - Spring Actuator
-- **PostgreSQL 16**
-- **Flyway** (migraciones de BD)
-
-### SIFEN
-- **JAXB** para manejo de XML
-- **Apache Santuario** para firma XAdES-BES
-- **BouncyCastle** para criptografía
-- **ZXing** para generación de QR
-
-### Reportes
-- **JasperReports** para PDFs
-- **Grok API** (xAI) para análisis IA
-
-### DevOps
-- **Docker** y **Docker Compose**
-- **Kubernetes** (manifiestos incluidos)
-- **GitHub Actions** (CI/CD)
-
-## 📋 Requisitos Previos
-
-### Software Requerido
+Compruebe versiones:
 
 ```bash
-# Java JDK 21
-java --version  # Debe mostrar versión 21+
-
-# Maven 3.9+
+java --version
 mvn --version
-
-# Docker y Docker Compose
 docker --version
 docker-compose --version
-
-# PostgreSQL 16 (opcional si usas Docker)
-psql --version
-
-# Git
-git --version
 ```
 
-### Hardware Mínimo
+---
 
-- **CPU:** 4 cores
-- **RAM:** 8 GB
-- **Disco:** 50 GB SSD
+## Inicio Rápido
 
-## 🚀 Inicio Rápido
+### Opción A — Con Docker (recomendado para pruebas)
 
-### Opción 1: Con Docker (Recomendado)
+1. Clonar el repositorio
 
 ```bash
-# 1. Clonar el repositorio
 git clone https://github.com/tu-usuario/logistic_control.git
 cd logistic_control
+```
 
-# 2. Crear directorio para certificados (opcional para pruebas)
+2. Copiar ejemplo de variables y crear carpetas necesarias
+
+```bash
+cp .env.example .env
 mkdir -p certificates logs
+```
 
-# 3. Iniciar con Docker Compose
-docker-compose up -d
+3. Levantar servicios
 
-# 4. Ver logs
+```bash
+docker-compose up -d --build
+```
+
+4. Ver logs de la aplicación
+
+```bash
 docker-compose logs -f app
-
-# Acceder a:
-# - API: http://localhost:8080/api
-# - PgAdmin: http://localhost:5050 (admin@logistic.com / admin)
 ```
 
-### Opción 2: Instalación Local
+URLs importantes (por defecto):
+- API: http://localhost:8080/api
+- Swagger UI: http://localhost:8080/api/swagger-ui.html
+- OpenAPI (JSON): http://localhost:8080/api/api-docs
+- PgAdmin (si está en docker-compose): http://localhost:5050
+
+
+### Opción B — Ejecución local (sin Docker)
+
+1. Configure la base de datos PostgreSQL y cree la BD (ejemplo):
 
 ```bash
-# 1. Clonar el repositorio
-git clone https://github.com/tu-usuario/logistic_control.git
-cd logistic_control
-
-# 2. Configurar PostgreSQL
 createdb logistic_db
-
-# 3. Configurar variables de entorno (opcional)
-export DB_HOST=localhost
-export DB_PORT=5432
-export DB_NAME=logistic_db
-export DB_USERNAME=postgres
-export DB_PASSWORD=postgres
-
-# 4. Compilar y ejecutar
-mvn clean install
-mvn spring-boot:run
-
-# O con el JAR
-mvn clean package
-java -jar target/control-1.0.0.jar
 ```
 
-## 🔧 Configuración
+2. Exporte las variables de entorno necesarias (ver `.env.example`) o use su propio método de configuración.
 
-### Certificado Digital para SIFEN
-
-#### Para Pruebas (Autofirmado)
+3. Compilar y ejecutar:
 
 ```bash
-# Generar certificado de prueba
-keytool -genkeypair -alias test -keyalg RSA -keysize 2048 \
-  -storetype PKCS12 -keystore certificates/test-certificate.p12 \
-  -validity 365 -storepass test123 \
-  -dname "CN=Test, OU=IT, O=Logistic, L=Asuncion, ST=Central, C=PY"
+mvn clean package -DskipTests=false
+mvn spring-boot:run
+# O con el jar
+java -jar target/*.jar
 ```
 
-## 📚 Estructura del Proyecto
+---
+
+## Variables de entorno (.env.example)
+
+Cree un archivo `.env` en la raíz (no lo versiones). Ejemplo mínimo:
 
 ```
-logistic_control/
-├── src/
-│   ├── main/
-│   │   ├── java/com/logistic/control/
-│   │   │   ├── config/         # Configuraciones
-│   │   │   ├── controller/     # REST Controllers
-│   │   │   ├── dto/            # Data Transfer Objects
-│   │   │   ├── entity/         # Entidades JPA
-│   │   │   ├── enums/          # Enumeraciones
-│   │   │   ├── exception/      # Excepciones personalizadas
-│   │   │   ├── repository/     # Repositorios JPA
-│   │   │   ├── security/       # Seguridad JWT
-│   │   │   ├── service/        # Lógica de negocio
-│   │   │   └── util/           # Utilidades
-│   │   └── resources/
-│   │       ├── db/migration/   # Scripts Flyway
-│   │       └── application.yml # Configuración
-│   └── test/                   # Tests
-├── docker-compose.yml
-├── Dockerfile
-├── pom.xml
-└── README.md
+# Database
+DB_HOST=postgres
+DB_PORT=5432
+DB_NAME=logistic_db
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+
+# JWT
+JWT_SECRET=your_jwt_secret_change_me
+JWT_EXPIRATION_MS=86400000
+REFRESH_TOKEN_EXPIRATION_MS=604800000
+
+# Encryption
+ENCRYPTION_KEY=base64_or_hex_encryption_key
+
+# SIFEN (opcional)
+SIFEN_CERT_PATH=certificates/your-cert.p12
+SIFEN_CERT_PASSWORD=changeit
+
+# App
+SPRING_PROFILES_ACTIVE=dev
 ```
 
-## 🔐 Seguridad
+Notas:
+- Nunca suba `.env` ni secretos al repositorio.
+- En producción use un vault o secret manager.
 
-### Usuarios por Defecto
+---
 
+## Migraciones (Flyway)
+
+Los scripts SQL están en `src/main/resources/db/migration` y se ejecutan automáticamente al arrancar la aplicación si Flyway está habilitado.
+
+Para ejecutar migraciones manualmente puede usar la imagen oficial de Flyway o dejar que la aplicación las ejecute al inicio.
+
+Ejemplo usando la imagen Flyway:
+
+```bash
+docker run --rm \
+  -v $(pwd)/src/main/resources/db/migration:/flyway/sql \
+  flyway/flyway:9 -url=jdbc:postgresql://host:5432/logistic_db -user=postgres -password=postgres migrate
 ```
-admin / admin123 (ADMIN)
-operador / admin123 (OPERADOR)
-cliente1 / admin123 (CLIENTE)
+
+---
+
+## Documentación OpenAPI / Swagger
+
+La aplicación expone la documentación OpenAPI generada con springdoc. Si corre localmente: `http://localhost:8080/api/swagger-ui.html`.
+
+Se ha configurado un SecurityScheme para JWT (Bearer). Para usarlo en Swagger UI:
+1. Haga login vía `/api/auth/login`.
+2. Copie el `accessToken` y en el botón "Authorize" pegue: `Bearer {token}`.
+
+El `OpenApiConfig` agrupa endpoints en tags: Autenticación, Clientes, Pedidos, Productos, Containers y Facturación.
+
+---
+
+## Endpoints principales y ejemplos
+
+### Autenticación
+
+Registro:
+
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "nuevo_usuario",
+    "password": "password123",
+    "nombre": "Nombre",
+    "apellido": "Apellido",
+    "email": "email@example.com",
+    "roles": ["CLIENTE"]
+  }'
 ```
 
-**⚠️ IMPORTANTE**: Cambiar passwords en producción
+Login:
 
-## 📖 Próximos Pasos
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"demo1234"}'
+```
 
-Este proyecto incluye la **estructura base completa**. Para continuar el desarrollo:
+Refresh token:
 
-1. **Implementar servicios de negocio** en `src/main/java/com/logistic/control/service/`
-2. **Crear controllers REST** en `src/main/java/com/logistic/control/controller/`
-3. **Implementar integración SIFEN** completa
-4. **Agregar DTOs** para requests/responses
-5. **Configurar seguridad JWT**
-6. **Crear tests unitarios e integración**
+```bash
+curl -X POST http://localhost:8080/api/auth/refresh \
+  -H "Authorization: Bearer <refresh_token>"
+```
 
-## 🤝 Contribuir
+Obtener usuario actual:
 
-1. Fork el proyecto
-2. Crear branch (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add: amazing feature'`)
-4. Push al branch (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
+```bash
+curl -X GET http://localhost:8080/api/auth/me \
+  -H "Authorization: Bearer <access_token>"
+```
 
-## 📝 Licencia
+Ejemplo de uso de API protegida:
 
-Este proyecto está bajo la Licencia MIT.
+```bash
+curl -X GET http://localhost:8080/api/clientes \
+  -H "Authorization: Bearer <access_token>"
+```
+
+---
+
+## Seguridad
+
+- JWT para autenticación (HS384 por defecto). Cambie `JWT_SECRET` en producción.
+- BCrypt para passwords.
+- Datos sensibles cifrados con AES-256-GCM.
+- Swagger UI está disponible por defecto en entornos `dev`. Recomendado ocultarlo o protegerlo en `prod`.
+
+---
+
+## Desarrollo y pruebas
+
+- Añadir tests: `mvn test`
+- Recomendado usar Testcontainers para pruebas de integración con Postgres.
+
+---
+
+## Checklist antes de desplegar (mínimo)
+
+- [ ] Actualizar `JWT_SECRET` y `ENCRYPTION_KEY` con valores seguros
+- [ ] Validar certificados `.p12` para SIFEN y su contraseña
+- [ ] Revisar `SPRING_PROFILES_ACTIVE` y configuración por entorno
+- [ ] Ejecutar `mvn -DskipTests=false clean package` y resolver fallos
+- [ ] Añadir/ejecutar pruebas unitarias e integración
+- [ ] Revisar configuración de CORS y security headers
+- [ ] Revisar que Swagger UI no esté expuesto públicamente en prod
+
+---
+
+## Contribuir
+
+- Fork -> Branch -> PR
+
+## Licencia
+
+MIT
 
 ---
 

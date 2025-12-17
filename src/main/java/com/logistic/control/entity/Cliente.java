@@ -1,6 +1,8 @@
 package com.logistic.control.entity;
 
 import com.logistic.control.enums.TipoServicio;
+import com.logistic.control.util.AttributeEncryptor;
+import com.logistic.control.exception.BusinessException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -34,8 +36,10 @@ public class Cliente extends BaseEntity {
     private String nombreFantasia;
 
     @NotBlank(message = "RUC es requerido")
-    @Pattern(regexp = "^\\d{6,8}-\\d{1}$", message = "RUC debe tener formato: 12345678-9")
-    @Column(name = "ruc", nullable = false, unique = true, length = 20)
+    // Aceptar ruc con DV (12345678-9) o solo número de RUC (12345678)
+    @Pattern(regexp = "^\\d{6,8}(-\\d{1})?$", message = "RUC debe tener formato: 12345678-9 o 12345678")
+    @Convert(converter = AttributeEncryptor.class)
+    @Column(name = "ruc", nullable = false, unique = true, length = 500)
     private String ruc;
 
     @Column(name = "dv", length = 1)
@@ -57,13 +61,16 @@ public class Cliente extends BaseEntity {
 
     @Email(message = "Email debe ser válido")
     @NotBlank(message = "Email es requerido")
-    @Column(name = "email", nullable = false, unique = true, length = 100)
+    @Convert(converter = AttributeEncryptor.class)
+    @Column(name = "email", nullable = false, unique = true, length = 500)
     private String email;
 
-    @Column(name = "telefono", length = 50)
+    @Convert(converter = AttributeEncryptor.class)
+    @Column(name = "telefono", length = 500)
     private String telefono;
 
-    @Column(name = "celular", length = 50)
+    @Convert(converter = AttributeEncryptor.class)
+    @Column(name = "celular", length = 500)
     private String celular;
 
     @Enumerated(EnumType.STRING)
@@ -76,6 +83,7 @@ public class Cliente extends BaseEntity {
     @Column(name = "credito_disponible")
     private Double creditoDisponible;
 
+    @Builder.Default
     @Column(name = "es_facturador_electronico")
     private Boolean esFacturadorElectronico = false;
 
@@ -119,16 +127,46 @@ public class Cliente extends BaseEntity {
     }
 
     public void updateCreditoDisponible(Double monto) {
-        if (this.creditoDisponible == null) {
-            this.creditoDisponible = this.creditoLimite;
+        if (monto == null) {
+            return;
         }
-        this.creditoDisponible -= monto;
+        if (this.creditoDisponible == null) {
+            this.creditoDisponible = (this.creditoLimite != null) ? this.creditoLimite : 0.0;
+        }
+
+        double nuevo = this.creditoDisponible - monto;
+
+        if (nuevo < 0) {
+            throw new BusinessException("El crédito disponible no puede ser negativo");
+        }
+
+        if (this.creditoLimite != null && nuevo > this.creditoLimite) {
+            throw new BusinessException("El crédito disponible no puede exceder el límite");
+        }
+
+        this.creditoDisponible = nuevo;
     }
 
     public void liberarCredito(Double monto) {
-        if (this.creditoDisponible == null) {
-            this.creditoDisponible = this.creditoLimite;
+        if (monto == null) {
+            return;
         }
-        this.creditoDisponible += monto;
+        if (this.creditoDisponible == null) {
+            this.creditoDisponible = (this.creditoLimite != null) ? this.creditoLimite : 0.0;
+        }
+
+        double nuevo = this.creditoDisponible + monto;
+
+        if (nuevo < 0) {
+            throw new BusinessException("El crédito disponible no puede ser negativo");
+        }
+
+        if (this.creditoLimite != null && nuevo > this.creditoLimite) {
+            // Ajustar al límite en vez de lanzar excepción para operaciones de liberación
+            this.creditoDisponible = this.creditoLimite;
+            return;
+        }
+
+        this.creditoDisponible = nuevo;
     }
 }

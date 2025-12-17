@@ -1,6 +1,7 @@
 package com.logistic.control.entity;
 
 import com.logistic.control.enums.TipoProveedor;
+import com.logistic.control.util.AttributeEncryptor;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -32,7 +33,8 @@ public class Proveedor extends BaseEntity {
     @Column(name = "razon_social", length = 255)
     private String razonSocial;
 
-    @Column(name = "ruc", length = 20)
+    @Convert(converter = AttributeEncryptor.class)
+    @Column(name = "ruc", length = 500)
     private String ruc;
 
     @Enumerated(EnumType.STRING)
@@ -52,10 +54,12 @@ public class Proveedor extends BaseEntity {
     private String contacto;
 
     @Email
-    @Column(name = "email", length = 100)
+    @Convert(converter = AttributeEncryptor.class)
+    @Column(name = "email", length = 500)
     private String email;
 
-    @Column(name = "telefono", length = 50)
+    @Convert(converter = AttributeEncryptor.class)
+    @Column(name = "telefono", length = 500)
     private String telefono;
 
     @Column(name = "costo_servicio")
@@ -68,7 +72,8 @@ public class Proveedor extends BaseEntity {
     @Column(name = "plazo_pago_dias")
     private Integer plazoPagoDias;
 
-    @Column(name = "cuenta_bancaria", length = 100)
+    @Convert(converter = AttributeEncryptor.class)
+    @Column(name = "cuenta_bancaria", length = 500)
     private String cuentaBancaria;
 
     @Column(name = "banco", length = 100)

@@ -1,0 +1,98 @@
+Phase 3: Clientes (Customers) Module
+- [ ] Create Clientes list page with pagination and filtering
+- [ ] Build Clientes form (create/edit) with validation
+- [ ] Implement Clientes detail view
+- [ ] Add RUC validation with SIFEN integration
+- [ ] Build credit limit management modal
+- [ ] Create search by RUC functionality
+
+## Phase 4: Pedidos (Orders) Module
+- [ ] Create Pedidos list page with status filtering
+- [ ] Build Pedidos form with complex validation
+- [ ] Implement Pedidos detail view with timeline
+- [ ] Create status change workflow with comments
+- [ ] Build public tracking page (without authentication)
+- [ ] Implement cost calculator
+- [ ] Add Mapbox integration for route visualization
+
+## Phase 5: Contenedores (Containers) Module
+- [ ] Create Contenedores list page
+- [ ] Build Contenedores form with type selection
+- [ ] Implement Contenedores detail view
+- [ ] Create container occupancy visualization (FusionCharts)
+- [ ] Build consolidation UI for adding products to containers
+- [ ] Implement capacity calculation and percentage display
+- [ ] Add Mapbox integration for container location tracking
+
+## Phase 6: Productos (Products) Module
+- [ ] Create Productos list page with filtering
+- [ ] Build Productos form with hazmat/perishable/fragile flags
+- [ ] Implement Productos detail view
+- [ ] Create search by NCM/Arancel functionality
+- [ ] Add product filters for dangerous/refrigerated items
+
+## Phase 7: Inventario (Inventory) Module
+- [ ] Create Inventario list page with location filtering
+- [ ] Build Inventario form with warehouse location mapping
+- [ ] Implement inventory operations (entrada/salida/reserva)
+- [ ] Create storage cost calculation
+- [ ] Build warehouse map visualization
+- [ ] Implement inventory status tracking
+
+## Phase 8: Facturas (Invoices) & SIFEN Integration
+- [ ] Create Facturas list page with status filtering
+- [ ] Build Facturas form with line items
+- [ ] Implement SIFEN integration panel
+- [ ] Create QR code display for SIFEN invoices
+- [ ] Build XML viewer for invoice details
+- [ ] Implement batch invoice sending to SIFEN
+- [ ] Add invoice status tracking from SIFEN
+- [ ] Create payment tracking (saldo/pagado)
+
+## Phase 9: Proveedores (Suppliers) Module
+- [ ] Create Proveedores list page with type filtering
+- [ ] Build Proveedores form
+- [ ] Implement Proveedores detail view
+- [ ] Add supplier rating system
+- [ ] Create supplier search functionality
+
+## Phase 10: Usuarios (Users) Administration
+- [ ] Create Usuarios list page (admin only)
+- [ ] Build Usuarios form with role assignment
+- [ ] Implement role management (add/remove roles)
+- [ ] Create user status controls (activate/deactivate/lock/unlock)
+- [ ] Build user detail view with login history
+
+## Phase 11: Dashboard & Analytics
+- [ ] Create main dashboard with KPI cards
+- [ ] Implement orders chart (FusionCharts)
+- [ ] Build revenue chart
+- [ ] Create containers status overview
+- [ ] Add pending invoices widget
+- [ ] Implement date range filtering for dashboard metrics
+- [ ] Add role-specific dashboard views
+
+## Phase 12: Maps & Geolocation Features
+- [ ] Integrate Mapbox GL JS for route tracking
+- [ ] Create ports/warehouses map visualization
+- [ ] Build transport route visualization
+- [ ] Implement geolocation for order tracking
+- [ ] Add real-time location updates (if applicable)
+
+## Phase 13: Forms & Validation
+- [ ] Set up React Hook Form across all modules
+- [ ] Implement Zod schema validation
+- [ ] Create reusable form components
+- [ ] Add field-level error messages
+- [ ] Implement async validation (RUC verification, etc.)
+
+## Phase 14: UI/UX Polish & Common Components
+- [ ] Create reusable DataTable component with sorting/filtering
+- [ ] Build PageHeader component
+- [ ] Implement LoadingSpinner and ErrorBoundary
+- [ ] Create ConfirmModal for destructive actions
+- [ ] Build StatusBadge component for various states
+- [ ] Create CurrencyDisplay component
+- [ ] Implement DateRangePicker component
+- [ ] Add responsive design across all pages
+- [ ] Implement dark/light theme support

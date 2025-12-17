@@ -60,4 +60,8 @@ public interface ContainerRepository extends JpaRepository<Container, Long> {
            "(c.pesoMaximoKg - c.pesoKg) >= :pesoRequerido AND " +
            "c.consolidado = false AND c.isActive = true")
     List<Container> findContainersConCapacidadDisponible(@Param("pesoRequerido") Double pesoRequerido);
+    
+    List<Container> findByEnTransitoTrue();
+    
+    List<Container> findByEnPuertoTrue();
 }

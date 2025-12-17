@@ -1,6 +1,7 @@
 package com.logistic.control.entity;
 
 import com.logistic.control.enums.Role;
+// import com.logistic.control.util.AttributeEncryptor; // Deshabilitado temporalmente
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -48,10 +49,12 @@ public class Usuario extends BaseEntity implements UserDetails {
 
     @Email(message = "Email debe ser válido")
     @NotBlank(message = "Email es requerido")
-    @Column(name = "email", nullable = false, unique = true, length = 100)
+    // @Convert(converter = AttributeEncryptor.class) // Deshabilitado temporalmente para testing
+    @Column(name = "email", nullable = false, unique = true, length = 500)
     private String email;
 
-    @Column(name = "telefono", length = 50)
+    // @Convert(converter = AttributeEncryptor.class) // Deshabilitado temporalmente para testing
+    @Column(name = "telefono", length = 500)
     private String telefono;
 
     @ElementCollection(fetch = FetchType.EAGER)

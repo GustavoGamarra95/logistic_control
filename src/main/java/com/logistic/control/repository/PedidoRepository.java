@@ -2,6 +2,8 @@ package com.logistic.control.repository;
 
 import com.logistic.control.entity.Pedido;
 import com.logistic.control.enums.EstadoPedido;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -60,4 +62,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     @Query("SELECT COUNT(p) FROM Pedido p WHERE p.estado = :estado")
     Long countByEstado(@Param("estado") EstadoPedido estado);
+
+    List<Pedido> findByFechaEstimadaLlegadaBetween(LocalDate desde, LocalDate hasta);
+
+    Page<Pedido> findByFechaEstimadaLlegadaBetween(LocalDate desde, LocalDate hasta, Pageable pageable);
 }

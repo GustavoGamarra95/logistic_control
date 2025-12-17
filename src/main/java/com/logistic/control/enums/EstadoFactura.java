@@ -6,6 +6,7 @@ package com.logistic.control.enums;
 public enum EstadoFactura {
     BORRADOR("Borrador"),
     GENERADA("Generada"),
+    EN_PROCESO("En Proceso"),
     ENVIADA_SIFEN("Enviada a SIFEN"),
     APROBADA("Aprobada por SET"),
     RECHAZADA("Rechazada por SET"),

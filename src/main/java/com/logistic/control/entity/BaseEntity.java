@@ -33,6 +33,9 @@ public abstract class BaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Column(name = "deletion_reason", length = 500)
+    private String deletionReason;
+
     @Column(name = "is_active")
     private Boolean isActive = true;
 
@@ -51,11 +54,19 @@ public abstract class BaseEntity {
     }
 
     /**
-     * Soft delete
+     * Soft delete with reason
+     */
+    public void softDelete(String reason) {
+        this.deletedAt = LocalDateTime.now();
+        this.deletionReason = reason;
+        this.isActive = false;
+    }
+
+    /**
+     * Soft delete without reason
      */
     public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
-        this.isActive = false;
+        softDelete(null);
     }
 
     /**
@@ -63,6 +74,7 @@ public abstract class BaseEntity {
      */
     public void restore() {
         this.deletedAt = null;
+        this.deletionReason = null;
         this.isActive = true;
     }
 }

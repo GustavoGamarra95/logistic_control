@@ -62,15 +62,19 @@ public class Producto extends BaseEntity {
     @Column(name = "moneda", length = 10)
     private String moneda;
 
+    @Builder.Default
     @Column(name = "es_peligroso")
     private Boolean esPeligroso = false;
 
+    @Builder.Default
     @Column(name = "es_perecedero")
     private Boolean esPerecedero = false;
 
+    @Builder.Default
     @Column(name = "es_fragil")
     private Boolean esFragil = false;
 
+    @Builder.Default
     @Column(name = "requiere_refrigeracion")
     private Boolean requiereRefrigeracion = false;
 

@@ -22,6 +22,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     @Query("SELECT u FROM Usuario u WHERE u.enabled = true")
     List<Usuario> findAllActive();
+    
+    List<Usuario> findByEnabledTrue();
 
     @Query("SELECT u FROM Usuario u WHERE u.cliente.id = :clienteId")
     List<Usuario> findByClienteId(@Param("clienteId") Long clienteId);

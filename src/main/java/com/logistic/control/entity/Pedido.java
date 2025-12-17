@@ -104,6 +104,7 @@ public class Pedido extends BaseEntity {
     @Column(name = "observaciones", length = 2000)
     private String observaciones;
 
+    @Builder.Default
     @Column(name = "requiere_seguro")
     private Boolean requiereSeguro = false;
 
@@ -126,7 +127,46 @@ public class Pedido extends BaseEntity {
     @Builder.Default
     private List<HistorialEstado> historialEstados = new ArrayList<>();
 
+    // Campos adicionales para facturación
+    @Column(name = "sub_total", precision = 15, scale = 2)
+    private java.math.BigDecimal subTotal;
+
+    @Column(name = "iva", precision = 15, scale = 2)
+    private java.math.BigDecimal iva;
+
+    @Column(name = "total", precision = 15, scale = 2)
+    private java.math.BigDecimal total;
+
+    @Column(name = "direccion_entrega", length = 500)
+    private String direccionEntrega;
+
+    @Column(name = "forma_pago", length = 50)
+    private String formaPago;
+
+    @Column(name = "fecha_pedido")
+    private LocalDateTime fechaPedido;
+
+    @Column(name = "fecha_entrega_estimada")
+    private LocalDateTime fechaEntregaEstimada;
+
+    @Column(name = "fecha_entrega")
+    private LocalDateTime fechaEntrega;
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<DetallePedido> detalles = new ArrayList<>();
+
     // Helper methods
+    public void addDetalle(DetallePedido detalle) {
+        detalles.add(detalle);
+        detalle.setPedido(this);
+    }
+
+    public void removeDetalle(DetallePedido detalle) {
+        detalles.remove(detalle);
+        detalle.setPedido(null);
+    }
+
     public void addProducto(Producto producto) {
         productos.add(producto);
         producto.setPedido(this);
@@ -152,8 +192,9 @@ public class Pedido extends BaseEntity {
         historialEstados.add(historial);
     }
 
-    public void calcularPesoVolumenTotal() {
+    public void calcularPesoVolumen() {
         this.pesoTotalKg = productos.stream()
+                .filter(p -> p.getPesoKg() != null)
                 .mapToDouble(p -> p.getPesoKg() * (p.getCantidadPorUnidad() != null ? p.getCantidadPorUnidad() : 1))
                 .sum();
 

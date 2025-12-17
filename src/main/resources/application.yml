@@ -17,7 +17,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
@@ -31,12 +31,28 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
-    validate-on-migrate: true
+    validate-on-migrate: false
 
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+
+# Springdoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method
+    tagsSorter: alpha
+    display-request-duration: true
+    try-it-out-enabled: true
+  show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
 
 # Server Configuration
 server:
@@ -55,53 +71,34 @@ jwt:
   expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
 
-# SIFEN Configuration
+# Encryption Configuration (AES-256)
+encryption:
+  secret-key: ${ENCRYPTION_KEY:9x/dNqCQ2ObG3y2PW8VzaEmvLXgqJCx0k68f4XdQ4/c=}
+
+# SIFEN Configuration (Sistema Integrado de Facturación Electrónica Nacional - Paraguay)
 sifen:
-  environment: ${SIFEN_ENV:test} # test or prod
-  endpoints:
-    test:
-      recepcion: https://sifen-test.set.gov.py/de/ws/sync/recibe.wsdl
-      consulta-ruc: https://sifen-test.set.gov.py/de/ws/consultas/consulta-ruc.wsdl
-      consulta-cdc: https://sifen-test.set.gov.py/de/ws/consultas/consulta-cdc.wsdl
-      eventos: https://sifen-test.set.gov.py/de/ws/eventos/evento.wsdl
-      lote: https://sifen-test.set.gov.py/de/ws/async/recibe-lote.wsdl
-      lote-consulta: https://sifen-test.set.gov.py/de/ws/consultas/consulta-lote.wsdl
-    prod:
-      recepcion: https://sifen.set.gov.py/de/ws/sync/recibe.wsdl
-      consulta-ruc: https://sifen.set.gov.py/de/ws/consultas/consulta-ruc.wsdl
-      consulta-cdc: https://sifen.set.gov.py/de/ws/consultas/consulta-cdc.wsdl
-      eventos: https://sifen.set.gov.py/de/ws/eventos/evento.wsdl
-      lote: https://sifen.set.gov.py/de/ws/async/recibe-lote.wsdl
-      lote-consulta: https://sifen.set.gov.py/de/ws/consultas/consulta-lote.wsdl
-
-  # Certificate for signature (XAdES-BES)
-  certificate:
-    path: ${SIFEN_CERT_PATH:classpath:certificates/test-certificate.p12}
-    password: ${SIFEN_CERT_PASSWORD:test123}
-    alias: ${SIFEN_CERT_ALIAS:test}
-
-  # Timbrado (stamping number from SET)
-  timbrado:
-    numero: ${SIFEN_TIMBRADO:12345678} # Test timbrado
-    fecha-inicio: ${SIFEN_TIMBRADO_INICIO:2025-01-01}
-    fecha-fin: ${SIFEN_TIMBRADO_FIN:2025-12-31}
-
-  # Emisor data
-  emisor:
-    ruc: ${SIFEN_EMISOR_RUC:80000000-1}
-    razon-social: ${SIFEN_EMISOR_RAZON:EMPRESA LOGISTICA S.A.}
-    nombre-fantasia: ${SIFEN_EMISOR_NOMBRE:LOGISTICA}
-    dv: ${SIFEN_EMISOR_DV:1}
-    actividad: ${SIFEN_EMISOR_ACTIVIDAD:Servicios de logística}
-    direccion: ${SIFEN_EMISOR_DIRECCION:Asunción, Paraguay}
-    telefono: ${SIFEN_EMISOR_TELEFONO:+595211234567}
-    email: ${SIFEN_EMISOR_EMAIL:facturacion@logistica.com.py}
-    establecimiento: ${SIFEN_EMISOR_ESTABLECIMIENTO:001}
-    punto-expedicion: ${SIFEN_EMISOR_PUNTO:001}
-
-  # CDC (Control Document Code) configuration
-  cdc:
-    modulo: 11
+  ambiente: ${SIFEN_AMBIENTE:test} # test o prod
+  url-test: https://sifen-test.set.gov.py/de/ws
+  url-prod: https://sifen.set.gov.py/de/ws
+  certificate-path: ${SIFEN_CERT_PATH:certificates/sifen-cert.p12}
+  certificate-password: ${SIFEN_CERT_PASSWORD:changeme}
+  certificate-type: P12
+  connect-timeout: 10
+  read-timeout: 60
+  ruc-emisor: ${SIFEN_RUC:80000000-1}
+  razon-social-emisor: ${SIFEN_RAZON_SOCIAL:EMPRESA LOGISTICA S.A.}
+  nombre-fantasia: ${SIFEN_NOMBRE_FANTASIA:LOGISTICA EXPRESS}
+  timbrado: ${SIFEN_TIMBRADO:12345678}
+  establecimiento: ${SIFEN_ESTABLECIMIENTO:001}
+  punto-expedicion: ${SIFEN_PUNTO_EXPEDICION:001}
+  actividad-economica: ${SIFEN_ACTIVIDAD:Servicios de logística y transporte}
+  direccion: ${SIFEN_DIRECCION:Asunción, Paraguay}
+  telefono: ${SIFEN_TELEFONO:+595211234567}
+  email: ${SIFEN_EMAIL:facturacion@logistica.com.py}
+  ciudad: ${SIFEN_CIUDAD:Asunción}
+  departamento: ${SIFEN_DEPARTAMENTO:11}
+  contingencia-enabled: false
+  max-reintentos: 3
 
 # Grok API Configuration (xAI)
 grok:
@@ -138,7 +135,7 @@ logging:
     com.logistic.control: ${LOG_LEVEL:DEBUG}
     org.springframework.web: INFO
     org.springframework.security: INFO
-    org.hibernate.SQL: ${SHOW_SQL:DEBUG}
+    org.hibernate.SQL: ${HIBERNATE_SQL_LEVEL:DEBUG}
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss} - %msg%n'
