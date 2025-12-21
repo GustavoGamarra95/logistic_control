@@ -6,6 +6,7 @@ package com.logistic.control.enums;
 public enum TipoProveedor {
     TRANSPORTE("Transporte"),
     ADUANAL("Agente Aduanal"),
+    ALMACEN("Almacén"),
     ALMACENAJE("Almacenaje"),
     SEGURO("Seguros"),
     EMBALAJE("Embalaje"),
