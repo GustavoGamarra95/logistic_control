@@ -4,10 +4,12 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: logistic-db
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: logistic_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5433:5432"
@@ -16,7 +18,7 @@ services:
     networks:
       - logistic-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,40 +31,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    env_file:
+      - .env
     environment:
-      # Database
+      # Database - Override for Docker network
       DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: logistic_db
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      SHOW_SQL: "true"
-      HIBERNATE_SQL_LEVEL: "DEBUG"
-
-      # Server
-      SERVER_PORT: 8080
-
-      # JWT
-      JWT_SECRET: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
-      JWT_EXPIRATION: 86400000
-      JWT_REFRESH_EXPIRATION: 604800000
-
-      # SIFEN
-      SIFEN_ENV: test
-      SIFEN_CERT_PASSWORD: test123
-      SIFEN_TIMBRADO: "12345678"
-      SIFEN_EMISOR_RUC: "80000000-1"
-      SIFEN_EMISOR_RAZON: "EMPRESA LOGISTICA S.A."
-      SIFEN_EMISOR_NOMBRE: "LOGISTICA"
-
-      # Grok API (opcional)
-      GROK_ENABLED: "false"
-
-      # Logging
-      LOG_LEVEL: DEBUG
-
-      # CORS
-      CORS_ORIGINS: "http://localhost:3000,http://localhost:8080"
 
     ports:
       - "8080:8080"
@@ -77,9 +50,11 @@ services:
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: logistic-pgadmin
+    env_file:
+      - .env
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@logistic.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
       - "5050:80"

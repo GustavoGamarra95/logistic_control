@@ -156,6 +156,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Spring Dotenv - Load .env file for local development -->
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
         <!-- Apache Commons -->
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:logistic_db}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -67,13 +67,13 @@ server:
 
 # JWT Configuration
 jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
 
 # Encryption Configuration (AES-256)
 encryption:
-  secret-key: ${ENCRYPTION_KEY:9x/dNqCQ2ObG3y2PW8VzaEmvLXgqJCx0k68f4XdQ4/c=}
+  secret-key: ${ENCRYPTION_KEY}
 
 # SIFEN Configuration (Sistema Integrado de Facturación Electrónica Nacional - Paraguay)
 sifen:
@@ -81,7 +81,7 @@ sifen:
   url-test: https://sifen-test.set.gov.py/de/ws
   url-prod: https://sifen.set.gov.py/de/ws
   certificate-path: ${SIFEN_CERT_PATH:certificates/sifen-cert.p12}
-  certificate-password: ${SIFEN_CERT_PASSWORD:changeme}
+  certificate-password: ${SIFEN_CERT_PASSWORD}
   certificate-type: P12
   connect-timeout: 10
   read-timeout: 60

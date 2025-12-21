@@ -75,3 +75,9 @@ build/
 # Test coverage
 .coverage
 htmlcov/
+
+# Archivos locales y backups
+.env.backup.*
+generate-secrets.sh
+info.txt
+.package-lock.json

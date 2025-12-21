@@ -6,10 +6,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
- * Filtro para agregar headers de seguridad HTTP
- * Protege contra XSS, Clickjacking, MIME sniffing, etc.
- */
 @Component
 public class SecurityHeadersConfig implements Filter {
 

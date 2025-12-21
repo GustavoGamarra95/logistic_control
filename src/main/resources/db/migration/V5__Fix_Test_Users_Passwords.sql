@@ -1,4 +1,4 @@
-- Corregir contraseñas de usuarios de prueba
+-- Corregir contraseñas de usuarios de prueba
 -- Password para todos: demo1234 (8 caracteres, cumple con validación mínima)
 -- Hash generado con BCrypt strength 12
 
