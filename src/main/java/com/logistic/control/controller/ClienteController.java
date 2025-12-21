@@ -35,7 +35,13 @@ public class ClienteController {
     })
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERADOR', 'FINANZAS')")
     @GetMapping
-    public ResponseEntity<Page<ClienteResponse>> listarClientes(Pageable pageable) {
+    public ResponseEntity<Page<ClienteResponse>> listarClientes(
+            @org.springframework.data.web.PageableDefault(
+                page = 0,
+                size = 20,
+                sort = "id",
+                direction = org.springframework.data.domain.Sort.Direction.DESC
+            ) Pageable pageable) {
         Page<ClienteResponse> clientes = clienteService.listarClientes(pageable);
         return ResponseEntity.ok(clientes);
     }

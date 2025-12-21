@@ -200,6 +200,29 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Maneja errores de parámetros de ordenamiento inválidos
+     */
+    @ExceptionHandler(org.springframework.data.mapping.PropertyReferenceException.class)
+    public ResponseEntity<ErrorResponse> handlePropertyReferenceException(
+            org.springframework.data.mapping.PropertyReferenceException ex,
+            HttpServletRequest request) {
+
+        String errorId = UUID.randomUUID().toString();
+        log.warn("Invalid sort parameter [{}]: {}", errorId, ex.getMessage());
+
+        ErrorResponse response = ErrorResponse.builder()
+                .errorId(errorId)
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Invalid Sort Parameter")
+                .message("El parámetro de ordenamiento no es válido. Verifique el nombre del campo.")
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
      * Maneja excepciones genéricas
      * NO expone detalles internos del sistema
      */
