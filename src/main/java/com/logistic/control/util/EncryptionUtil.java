@@ -86,6 +86,25 @@ public class EncryptionUtil {
     }
 
     /**
+     * Intenta descifrar un texto. Si falla (datos legacy no cifrados), retorna el texto original.
+     * Esto permite compatibilidad con datos existentes que fueron insertados antes del cifrado.
+     */
+    public String decryptOrReturnPlainText(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+
+        try {
+            // Intentar descifrar
+            return decrypt(text);
+        } catch (RuntimeException e) {
+            // Si falla el descifrado, asumir que es texto plano (datos legacy)
+            // Los nuevos datos se cifrarán automáticamente al guardar
+            return text;
+        }
+    }
+
+    /**
      * Genera un IV aleatorio
      */
     private byte[] generateIV() {
