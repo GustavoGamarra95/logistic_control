@@ -1,6 +1,8 @@
-import { useEffect } from 'react';
-import { Modal, Form, Input, Select, Rate, InputNumber } from 'antd';
+import { useEffect, useMemo } from 'react';
+import { Modal, Form, Input, Select, Rate, InputNumber, AutoComplete } from 'antd';
 import { Proveedor } from '@/types/proveedor.types';
+import { getPaises, getCiudadesPorPais, getAllCiudades } from '@/utils/geo-data';
+import { RucInput } from '@/components/common/RucInput';
 
 interface ProveedorFormModalProps {
   open: boolean;
@@ -92,10 +94,11 @@ export const ProveedorFormModal = ({
         <div className="grid grid-cols-2 gap-4">
           <Form.Item
             name="ruc"
-            label="RUC"
+            label="RUC (con dígito verificador)"
             rules={[{ required: true, message: 'Ingrese el RUC' }]}
+            help="Formato: 12345678-9"
           >
-            <Input placeholder="12345678-9" />
+            <RucInput />
           </Form.Item>
 
           <Form.Item
@@ -144,18 +147,44 @@ export const ProveedorFormModal = ({
 
         <div className="grid grid-cols-2 gap-4">
           <Form.Item
-            name="ciudad"
-            label="Ciudad"
+            name="pais"
+            label="País"
+            rules={[{ required: true, message: 'Seleccione el país' }]}
           >
-            <Input placeholder="Asunción" />
+            {({ getFieldValue }) => (
+              <AutoComplete
+                value={getFieldValue('pais')}
+                options={getPaises().map((pais) => ({ value: pais }))}
+                placeholder="Buscar país..."
+                filterOption={(inputValue, option) =>
+                  option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                }
+              />
+            )}
           </Form.Item>
 
           <Form.Item
-            name="pais"
-            label="País"
-            rules={[{ required: true, message: 'Ingrese el país' }]}
+            name="ciudad"
+            label="Ciudad"
+            dependencies={['pais']}
           >
-            <Input placeholder="Paraguay" />
+            {({ getFieldValue }) => {
+              const paisSeleccionado = getFieldValue('pais');
+              const ciudades = paisSeleccionado
+                ? getCiudadesPorPais(paisSeleccionado)
+                : getAllCiudades();
+
+              return (
+                <AutoComplete
+                  value={getFieldValue('ciudad')}
+                  options={ciudades.map((ciudad) => ({ value: ciudad }))}
+                  placeholder={paisSeleccionado ? `Ciudades de ${paisSeleccionado}...` : 'Seleccionar ciudad...'}
+                  filterOption={(inputValue, option) =>
+                    option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                  }
+                />
+              );
+            }}
           </Form.Item>
         </div>
 

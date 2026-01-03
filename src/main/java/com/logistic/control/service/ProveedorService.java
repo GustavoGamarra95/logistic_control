@@ -177,17 +177,33 @@ public class ProveedorService {
     }
 
     /**
-     * Validar datos de negocio
+     * Validar datos de negocio y normalizar RUC
      */
     private void validarDatosProveedor(ProveedorRequest request) {
-        if (!inputSanitizer.isValidRuc(request.getRuc())) {
-            throw new BusinessException("Formato de RUC inválido");
+        // Normalizar RUC: aceptar con o sin DV, agregar separador si falta
+        String rucRaw = request.getRuc();
+        if (rucRaw != null) {
+            rucRaw = rucRaw.trim();
+
+            // Si tiene exactamente 8 dígitos sin separador, dejarlo así (RUC sin DV)
+            // Si tiene 9 dígitos sin separador, agregar el separador antes del último dígito
+            if (rucRaw.matches("^\\d{9}$")) {
+                rucRaw = rucRaw.substring(0, 8) + "-" + rucRaw.substring(8);
+            }
+            // Si ya tiene el separador, dejarlo como está
+
+            request.setRuc(rucRaw);
         }
-        
-        if (!inputSanitizer.isValidEmail(request.getEmail())) {
+
+        if (!inputSanitizer.isValidRuc(request.getRuc())) {
+            throw new BusinessException("Formato de RUC inválido. Debe ser: 12345678 o 12345678-9");
+        }
+
+        if (request.getEmail() != null && !request.getEmail().isEmpty() &&
+            !inputSanitizer.isValidEmail(request.getEmail())) {
             throw new BusinessException("Formato de email inválido");
         }
-        
+
         if (request.getPlazoPagoDias() != null && request.getPlazoPagoDias() < 0) {
             throw new BusinessException("El plazo de pago no puede ser negativo");
         }

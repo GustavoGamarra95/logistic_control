@@ -1,9 +1,12 @@
-import { Modal, Form, Input, Select, InputNumber, Switch, Row, Col } from 'antd';
+import { Modal, Form, Input, Select, InputNumber, Switch, Row, Col, AutoComplete } from 'antd';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { clienteSchema, ClienteFormData } from '@/schemas/cliente.schema';
 import { Cliente } from '@/types/cliente.types';
-import { TIPOS_SERVICIO, PAISES_COMUNES } from '@/utils/constants';
+import { TIPOS_SERVICIO } from '@/utils/constants';
+import { getPaises, getCiudadesPorPais, getAllCiudades } from '@/utils/geo-data';
+import { RucInput } from '@/components/common/RucInput';
+import { useState, useMemo } from 'react';
 
 interface ClienteFormModalProps {
   open: boolean;
@@ -20,31 +23,52 @@ export const ClienteFormModal = ({
   initialData,
   loading = false,
 }: ClienteFormModalProps) => {
+  const [selectedPais, setSelectedPais] = useState<string>(initialData?.pais || '');
+
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    setValue,
   } = useForm<ClienteFormData>({
     resolver: zodResolver(clienteSchema),
-    defaultValues: initialData || {
-      razonSocial: '',
-      nombreFantasia: '',
-      ruc: '',
-      dv: '',
-      direccion: '',
-      ciudad: '',
-      pais: 'Paraguay',
-      contacto: '',
-      email: '',
-      telefono: '',
-      celular: '',
-      tipoServicio: 'MARITIMO',
-      creditoLimite: 0,
-      esFacturadorElectronico: false,
-      observaciones: '',
-    },
+    defaultValues: initialData
+      ? {
+          ...initialData,
+          // Concatenar RUC y DV para mostrar en el input
+          ruc: initialData.dv ? `${initialData.ruc}-${initialData.dv}` : initialData.ruc,
+        }
+      : {
+          razonSocial: '',
+          nombreFantasia: '',
+          ruc: '',
+          dv: '',
+          direccion: '',
+          ciudad: '',
+          pais: '',
+          contacto: '',
+          email: '',
+          telefono: '',
+          celular: '',
+          tipoServicio: 'MARITIMO',
+          creditoLimite: 0,
+          esFacturadorElectronico: false,
+          observaciones: '',
+        },
   });
+
+  // Watch para cambios en el país
+  const paisActual = watch('pais');
+
+  // Ciudades filtradas según el país seleccionado
+  const ciudadesDisponibles = useMemo(() => {
+    if (paisActual) {
+      return getCiudadesPorPais(paisActual);
+    }
+    return getAllCiudades();
+  }, [paisActual]);
 
   const handleClose = () => {
     reset();
@@ -103,41 +127,41 @@ export const ClienteFormModal = ({
           </Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col span={16}>
-            <Form.Item
-              label="RUC"
-              validateStatus={errors.ruc ? 'error' : ''}
-              help={errors.ruc?.message}
-              required
-            >
-              <Controller
-                name="ruc"
-                control={control}
-                render={({ field }) => (
-                  <Input {...field} placeholder="12345678" maxLength={8} />
-                )}
+        <Form.Item
+          label="RUC (con dígito verificador)"
+          validateStatus={errors.ruc ? 'error' : ''}
+          help={errors.ruc?.message || 'Formato: 12345678-9'}
+          required
+        >
+          <Controller
+            name="ruc"
+            control={control}
+            render={({ field }) => (
+              <RucInput
+                {...field}
+                onChange={(value) => {
+                  // Si tiene separador, separar RUC y DV
+                  if (value && value.includes('-')) {
+                    const [ruc, dv] = value.split('-');
+                    setValue('ruc', ruc);
+                    setValue('dv', dv || '');
+                  } else {
+                    // Sin separador, solo actualizar RUC
+                    setValue('ruc', value);
+                    setValue('dv', '');
+                  }
+                }}
               />
-            </Form.Item>
-          </Col>
+            )}
+          />
+        </Form.Item>
 
-          <Col span={8}>
-            <Form.Item
-              label="DV"
-              validateStatus={errors.dv ? 'error' : ''}
-              help={errors.dv?.message}
-              required
-            >
-              <Controller
-                name="dv"
-                control={control}
-                render={({ field }) => (
-                  <Input {...field} placeholder="9" maxLength={1} />
-                )}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+        {/* Campo DV oculto para compatibilidad con backend */}
+        <Controller
+          name="dv"
+          control={control}
+          render={() => null}
+        />
 
         <Form.Item
           label="Dirección"
@@ -157,23 +181,6 @@ export const ClienteFormModal = ({
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Ciudad"
-              validateStatus={errors.ciudad ? 'error' : ''}
-              help={errors.ciudad?.message}
-              required
-            >
-              <Controller
-                name="ciudad"
-                control={control}
-                render={({ field }) => (
-                  <Input {...field} placeholder="Asunción" />
-                )}
-              />
-            </Form.Item>
-          </Col>
-
-          <Col span={12}>
-            <Form.Item
               label="País"
               validateStatus={errors.pais ? 'error' : ''}
               help={errors.pais?.message}
@@ -183,13 +190,44 @@ export const ClienteFormModal = ({
                 name="pais"
                 control={control}
                 render={({ field }) => (
-                  <Select {...field} placeholder="Seleccionar país">
-                    {PAISES_COMUNES.map((pais) => (
-                      <Select.Option key={pais} value={pais}>
-                        {pais}
-                      </Select.Option>
-                    ))}
-                  </Select>
+                  <AutoComplete
+                    {...field}
+                    value={field.value}
+                    options={getPaises().map((pais) => ({ value: pais }))}
+                    placeholder="Buscar país..."
+                    filterOption={(inputValue, option) =>
+                      option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                    }
+                    onChange={(value) => {
+                      field.onChange(value);
+                      setSelectedPais(value);
+                    }}
+                  />
+                )}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Ciudad"
+              validateStatus={errors.ciudad ? 'error' : ''}
+              help={errors.ciudad?.message}
+              required
+            >
+              <Controller
+                name="ciudad"
+                control={control}
+                render={({ field }) => (
+                  <AutoComplete
+                    {...field}
+                    value={field.value}
+                    options={ciudadesDisponibles.map((ciudad) => ({ value: ciudad }))}
+                    placeholder={paisActual ? `Ciudades de ${paisActual}...` : 'Seleccionar ciudad...'}
+                    filterOption={(inputValue, option) =>
+                      option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                    }
+                  />
                 )}
               />
             </Form.Item>

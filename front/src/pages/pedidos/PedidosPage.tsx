@@ -6,29 +6,55 @@ import { usePedidos } from '@/hooks/usePedidos';
 import { usePagination } from '@/hooks/usePagination';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Pedido, EstadoPedido } from '@/types/pedido.types';
+import { PedidoFormData } from '@/schemas/pedido.schema';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { showConfirmModal } from '@/components/common/ConfirmModal';
 import { formatCurrency, formatDate } from '@/utils/format';
+import { PedidoFormModal } from '@/components/pedidos/PedidoFormModal';
 
 const PedidosPage = () => {
   const [searchText, setSearchText] = useState('');
   const [estadoFilter, setEstadoFilter] = useState<EstadoPedido | 'TODOS'>('TODOS');
-  
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPedido, setSelectedPedido] = useState<Pedido | undefined>(undefined);
+
   const debouncedSearch = useDebounce(searchText, 300);
   const { page, size, handlePageChange, handleSizeChange } = usePagination();
 
-  const { 
-    pedidos, 
-    pagination, 
-    isLoading, 
+  const {
+    pedidos,
+    pagination,
+    isLoading,
+    createPedido,
+    updatePedido,
     deletePedido,
+    isCreating,
+    isUpdating,
   } = usePedidos({
     page,
     size,
     search: debouncedSearch,
     estado: estadoFilter !== 'TODOS' ? estadoFilter : undefined,
   });
+
+  const handleOpenModal = (pedido?: Pedido) => {
+    setSelectedPedido(pedido);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedPedido(undefined);
+    setModalOpen(false);
+  };
+
+  const handleSubmit = (data: PedidoFormData) => {
+    if (selectedPedido) {
+      updatePedido({ id: selectedPedido.id, data });
+    } else {
+      createPedido(data);
+    }
+  };
 
   const handleDelete = (pedido: Pedido) => {
     showConfirmModal({
@@ -127,6 +153,7 @@ const PedidosPage = () => {
             type="text"
             icon={<EditOutlined />}
             size="small"
+            onClick={() => handleOpenModal(record)}
             title="Editar"
           />
           <Button
@@ -148,7 +175,7 @@ const PedidosPage = () => {
         title="Gestión de Pedidos"
         subtitle="Administra y da seguimiento a todos los pedidos"
         extra={
-          <Button type="primary" icon={<PlusOutlined />}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenModal()}>
             Nuevo Pedido
           </Button>
         }
@@ -205,6 +232,14 @@ const PedidosPage = () => {
           />
         </Space>
       </Card>
+
+      <PedidoFormModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmit}
+        initialData={selectedPedido}
+        loading={isCreating || isUpdating}
+      />
     </div>
   );
 };

@@ -59,7 +59,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                         // Endpoints públicos (sin /api porque ya está en context-path)
                         auth.requestMatchers("/auth/**").permitAll();
-                        auth.requestMatchers("/debug/**").permitAll(); // Debug endpoints (REMOVER EN PRODUCCIÓN)
                         auth.requestMatchers("/actuator/health").permitAll();
                         auth.requestMatchers("/actuator/info").permitAll();
 
