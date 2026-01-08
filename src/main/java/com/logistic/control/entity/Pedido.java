@@ -116,8 +116,9 @@ public class Pedido extends BaseEntity {
     @Builder.Default
     private List<Producto> productos = new ArrayList<>();
 
-    @OneToOne(mappedBy = "pedido", cascade = CascadeType.ALL)
-    private Factura factura;
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Factura> facturas = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "container_id")

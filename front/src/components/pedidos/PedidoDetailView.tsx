@@ -1,3 +1,4 @@
+import { useRef, useCallback } from 'react';
 import { Modal, Descriptions, Timeline, Tag, Divider, Card, Row, Col, Button, Space } from 'antd';
 import {
   ClockCircleOutlined,
@@ -7,10 +8,13 @@ import {
   EnvironmentOutlined,
   DollarOutlined,
   FileTextOutlined,
+  PrinterOutlined,
 } from '@ant-design/icons';
+import { useReactToPrint } from 'react-to-print';
 import { Pedido, EstadoPedido } from '@/types/pedido.types';
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/format';
 import { StatusBadge } from '@/components/common/StatusBadge';
+import { PedidoPrintView } from './PedidoPrintView';
 
 interface PedidoDetailViewProps {
   open: boolean;
@@ -53,14 +57,21 @@ const ESTADO_COLORS: Record<EstadoPedido, string> = {
 };
 
 export const PedidoDetailView = ({ open, onClose, pedido, historial = [] }: PedidoDetailViewProps) => {
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Pedido-${pedido?.codigoTracking || 'documento'}`,
+  });
+
+  const handleExportPDF = useCallback(() => {
+    handlePrint();
+  }, [handlePrint]);
+
   if (!pedido) return null;
 
-  const handleExportPDF = () => {
-    // TODO: Implementar exportación a PDF
-    console.log('Exportar PDF del pedido', pedido.id);
-  };
-
   return (
+    <>
     <Modal
       title={
         <div className="flex items-center justify-between">
@@ -74,8 +85,8 @@ export const PedidoDetailView = ({ open, onClose, pedido, historial = [] }: Pedi
       footer={
         <Space>
           <Button onClick={onClose}>Cerrar</Button>
-          <Button type="primary" icon={<FileTextOutlined />} onClick={handleExportPDF}>
-            Exportar PDF
+          <Button type="primary" icon={<PrinterOutlined />} onClick={handleExportPDF}>
+            Imprimir
           </Button>
         </Space>
       }
@@ -90,8 +101,13 @@ export const PedidoDetailView = ({ open, onClose, pedido, historial = [] }: Pedi
             <Descriptions.Item label="Fecha Registro">
               {formatDateTime(pedido.fechaRegistro)}
             </Descriptions.Item>
-            <Descriptions.Item label="Cliente ID">
-              {pedido.clienteId}
+            <Descriptions.Item label="Cliente" span={2}>
+              <div>
+                <strong>ID: {pedido.clienteId}</strong>
+                {pedido.clienteNombre && (
+                  <span className="ml-2">- {pedido.clienteNombre}</span>
+                )}
+              </div>
             </Descriptions.Item>
             <Descriptions.Item label="Estado Actual">
               <Tag color={ESTADO_COLORS[pedido.estado]}>{pedido.estado}</Tag>
@@ -250,6 +266,15 @@ export const PedidoDetailView = ({ open, onClose, pedido, historial = [] }: Pedi
           </Card>
         )}
       </div>
+
     </Modal>
+
+    {/* Hidden print component - must be in DOM for react-to-print */}
+    {open && (
+      <div style={{ position: 'fixed', left: '-9999px', top: 0, width: '100%' }}>
+        <PedidoPrintView ref={printRef} pedido={pedido} />
+      </div>
+    )}
+    </>
   );
 };

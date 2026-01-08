@@ -66,4 +66,44 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<Pedido> findByFechaEstimadaLlegadaBetween(LocalDate desde, LocalDate hasta);
 
     Page<Pedido> findByFechaEstimadaLlegadaBetween(LocalDate desde, LocalDate hasta, Pageable pageable);
+
+    @Query(value = "SELECT p FROM Pedido p LEFT JOIN FETCH p.cliente WHERE p.isActive = true",
+           countQuery = "SELECT COUNT(p) FROM Pedido p WHERE p.isActive = true")
+    Page<Pedido> findAllWithCliente(Pageable pageable);
+
+    /**
+     * Encuentra pedidos que tienen al menos un ítem pendiente de facturar.
+     * Útil para mostrar en el módulo de facturación.
+     */
+    @Query("SELECT DISTINCT p FROM Pedido p JOIN p.detalles d " +
+           "WHERE d.cantidad > d.cantidadFacturada " +
+           "AND p.estado NOT IN ('CANCELADO', 'DEVUELTO', 'FACTURADO') " +
+           "AND p.isActive = true")
+    List<Pedido> findPedidosPendientesDeFacturar();
+
+    /**
+     * Verifica si un pedido está completamente facturado.
+     * Retorna true si NO hay ningún detalle con cantidad pendiente.
+     */
+    @Query("SELECT CASE WHEN COUNT(d) = 0 THEN true ELSE false END " +
+           "FROM DetallePedido d WHERE d.pedido.id = :pedidoId " +
+           "AND d.cantidad > d.cantidadFacturada " +
+           "AND d.isActive = true")
+    Boolean isPedidoCompletamenteFacturado(@Param("pedidoId") Long pedidoId);
+
+    /**
+     * Encuentra pedidos pendientes de facturar con paginación y cliente cargado.
+     */
+    @Query(value = "SELECT DISTINCT p FROM Pedido p " +
+           "LEFT JOIN FETCH p.cliente " +
+           "JOIN p.detalles d " +
+           "WHERE d.cantidad > d.cantidadFacturada " +
+           "AND p.estado NOT IN ('CANCELADO', 'DEVUELTO', 'FACTURADO') " +
+           "AND p.isActive = true",
+           countQuery = "SELECT COUNT(DISTINCT p) FROM Pedido p " +
+                       "JOIN p.detalles d " +
+                       "WHERE d.cantidad > d.cantidadFacturada " +
+                       "AND p.estado NOT IN ('CANCELADO', 'DEVUELTO', 'FACTURADO') " +
+                       "AND p.isActive = true")
+    Page<Pedido> findPedidosPendientesDeFacturar(Pageable pageable);
 }

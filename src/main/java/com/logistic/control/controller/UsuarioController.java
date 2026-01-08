@@ -140,11 +140,26 @@ public class UsuarioController {
         return ResponseEntity.ok(usuario);
     }
 
+    @Operation(summary = "Restablecer contraseña de usuario")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/reset-password")
+    public ResponseEntity<UsuarioResponse> resetPassword(
+            @PathVariable Long id,
+            @RequestBody ResetPasswordRequest request) {
+        UsuarioResponse usuario = usuarioService.resetPassword(id, request.getNewPassword());
+        return ResponseEntity.ok(usuario);
+    }
+
     @Operation(summary = "Eliminar usuario")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
         usuarioService.desactivarUsuario(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @lombok.Data
+    public static class ResetPasswordRequest {
+        private String newPassword;
     }
 }

@@ -1,0 +1,221 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "loading": "Loading...",
+    "noData": "No data",
+    "actions": "Actions",
+    "confirm": "Confirm",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "total": "Total",
+    "date": "Date",
+    "status": "Status",
+    "description": "Description",
+    "details": "Details"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "clientes": "Customers",
+    "pedidos": "Orders",
+    "contenedores": "Containers",
+    "productos": "Products",
+    "inventario": "Inventory",
+    "facturas": "Invoices",
+    "proveedores": "Suppliers",
+    "usuarios": "Users",
+    "reportes": "Reports",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "System control panel and metrics",
+    "pedidosActivos": "Active Orders",
+    "facturas": "Invoices",
+    "inventario": "Inventory",
+    "clientes": "Customers",
+    "recentOrders": "Recent Orders",
+    "recentInvoices": "Recent Invoices",
+    "lowStock": "Low Stock Products",
+    "stockAlert": "Inventory Alert"
+  },
+  "pedidos": {
+    "title": "Order Management",
+    "subtitle": "Import/export order tracking and control",
+    "nuevo": "New Order",
+    "codigoTracking": "Tracking Code",
+    "cliente": "Customer",
+    "origen": "Origin",
+    "destino": "Destination",
+    "estado": "Status",
+    "tipoCarga": "Cargo Type",
+    "peso": "Weight",
+    "volumen": "Volume",
+    "valorDeclarado": "Declared Value",
+    "estados": {
+      "REGISTRADO": "Registered",
+      "EN_TRANSITO": "In Transit",
+      "RECIBIDO": "Received",
+      "EN_ADUANA": "In Customs",
+      "LIBERADO": "Released",
+      "EN_DEPOSITO": "In Warehouse",
+      "EN_REPARTO": "In Delivery",
+      "ENTREGADO": "Delivered",
+      "CANCELADO": "Cancelled",
+      "DEVUELTO": "Returned"
+    }
+  },
+  "facturas": {
+    "title": "Invoice Management",
+    "subtitle": "Electronic invoicing with SIFEN",
+    "nueva": "New Invoice",
+    "numero": "Number",
+    "timbrado": "Tax Stamp",
+    "enviarSIFEN": "Send to SIFEN",
+    "estados": {
+      "BORRADOR": "Draft",
+      "EMITIDA": "Issued",
+      "ENVIADA_SIFEN": "Sent to SIFEN",
+      "APROBADA": "Approved",
+      "RECHAZADA": "Rejected",
+      "ANULADA": "Cancelled",
+      "PAGADA": "Paid",
+      "VENCIDA": "Overdue"
+    }
+  },
+  "inventario": {
+    "title": "Inventory Management",
+    "subtitle": "Stock and storage control",
+    "nuevaEntrada": "New Entry",
+    "registrarSalida": "Register Exit",
+    "ubicacion": "Location",
+    "lote": "Batch",
+    "disponible": "Available",
+    "reservado": "Reserved",
+    "estados": {
+      "DISPONIBLE": "Available",
+      "RESERVADO": "Reserved",
+      "EN_CUARENTENA": "In Quarantine",
+      "DAÑADO": "Damaged",
+      "VENCIDO": "Expired"
+    }
+  },
+  "reportes": {
+    "title": "Reports",
+    "subtitle": "System reports and documents generation",
+    "seleccione": "Select a Report",
+    "generar": "Generate",
+    "vistaPrevia": "Preview",
+    "descargar": "Download",
+    "pdf": "PDF",
+    "excel": "Excel"
+  },
+  "auth": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "invalidCredentials": "Invalid credentials"
+  },
+  "messages": {
+    "success": {
+      "created": "Created successfully",
+      "updated": "Updated successfully",
+      "deleted": "Deleted successfully",
+      "saved": "Saved successfully"
+    },
+    "error": {
+      "generic": "An error occurred",
+      "network": "Connection error",
+      "notFound": "Not found",
+      "unauthorized": "Unauthorized"
+    },
+    "confirm": {
+      "delete": "Are you sure you want to delete?",
+      "cancel": "Are you sure you want to cancel?"
+    }
+  },
+  "configuracion": {
+    "title": "Settings",
+    "subtitle": "Customize your system preferences",
+    "tabs": {
+      "general": "General",
+      "facturacion": "Billing",
+      "usuarios": "User Management"
+    },
+    "apariencia": {
+      "title": "Appearance",
+      "theme": "Theme",
+      "themeDescription": "Switch between light and dark mode",
+      "language": "Language",
+      "languageDescription": "Select your preferred language"
+    },
+    "notificaciones": {
+      "title": "Notifications",
+      "push": "Push Notifications",
+      "pushDescription": "Receive real-time notifications",
+      "email": "Email Notifications",
+      "emailDescription": "Receive email summaries",
+      "sound": "Sound",
+      "soundDescription": "Play sounds for notifications"
+    },
+    "general": {
+      "title": "General",
+      "autoSave": "Auto-save",
+      "autoSaveDescription": "Save changes automatically",
+      "itemsPerPage": "Items per page",
+      "defaultView": "Default view"
+    },
+    "sifen": {
+      "title": "SIFEN Configuration",
+      "subtitle": "National Electronic Invoicing Integrated System",
+      "verificar": "Verify Connection",
+      "verificando": "Verifying...",
+      "guardar": "Save Configuration",
+      "ambiente": "Environment",
+      "ambienteTest": "Testing",
+      "ambienteProduccion": "Production",
+      "rucEmisor": "Issuer RUC",
+      "razonSocial": "Business Name",
+      "nombreFantasia": "Trade Name",
+      "certificado": "Digital Certificate",
+      "certificadoPassword": "Certificate Password",
+      "timbrado": "Tax Stamp Number",
+      "establecimiento": "Establishment Code",
+      "puntoExpedicion": "Expedition Point",
+      "apiUrl": "API URL",
+      "apiToken": "API Token",
+      "estado": "Connection Status",
+      "conectado": "Connected",
+      "desconectado": "Disconnected"
+    },
+    "usuarios": {
+      "buscar": "Search users...",
+      "total": "Total users",
+      "username": "Username",
+      "nombre": "Name",
+      "email": "Email",
+      "roles": "Roles",
+      "estado": "Status",
+      "activo": "Active",
+      "acciones": "Actions",
+      "editar": "Edit",
+      "bloquear": "Block",
+      "desbloquear": "Unblock",
+      "estados": {
+        "bloqueado": "Blocked",
+        "inactivo": "Inactive",
+        "activo": "Active"
+      }
+    }
+  }
+}

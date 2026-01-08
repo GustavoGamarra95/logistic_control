@@ -41,7 +41,7 @@ public class PedidoService {
      */
     public Page<PedidoResponse> listarPedidos(Pageable pageable) {
         log.debug("Listando pedidos - página: {}", pageable.getPageNumber());
-        return pedidoRepository.findAll(pageable)
+        return pedidoRepository.findAllWithCliente(pageable)
                 .map(this::toResponse);
     }
 
@@ -258,6 +258,7 @@ public class PedidoService {
             case EN_DEPOSITO -> 6;
             case EN_REPARTO -> 7;
             case ENTREGADO -> 8;
+            case FACTURADO -> 9;
             case CANCELADO -> 0;
             case DEVUELTO -> 0;
         };
@@ -301,6 +302,11 @@ public class PedidoService {
                 .requiereSeguro(pedido.getRequiereSeguro())
                 .valorSeguro(pedido.getValorSeguro())
                 .observaciones(pedido.getObservaciones())
+                .subTotal(pedido.getSubTotal() != null ? pedido.getSubTotal().doubleValue() : null)
+                .iva(pedido.getIva() != null ? pedido.getIva().doubleValue() : null)
+                .total(pedido.getTotal() != null ? pedido.getTotal().doubleValue() : null)
+                .direccionEntrega(pedido.getDireccionEntrega())
+                .formaPago(pedido.getFormaPago())
                 .createdAt(pedido.getCreatedAt())
                 .updatedAt(pedido.getUpdatedAt())
                 .build();

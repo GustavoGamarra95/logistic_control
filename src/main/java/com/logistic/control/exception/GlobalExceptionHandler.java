@@ -177,13 +177,39 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Maneja excepciones de lógica de negocio
+     * Estas son errores esperados, no excepciones del sistema
+     */
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(
+            BusinessException ex,
+            HttpServletRequest request) {
+
+        String errorId = UUID.randomUUID().toString();
+        // Log con nivel WARN, sin stack trace (es un error esperado)
+        log.warn("Business validation failed [{}]: {} - Code: {}",
+                errorId, ex.getMessage(), ex.getErrorCode());
+
+        ErrorResponse response = ErrorResponse.builder()
+                .errorId(errorId)
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Business Validation Failed")
+                .message(ex.getMessage()) // Mensaje específico del negocio
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
      * Maneja IllegalArgumentException
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(
             IllegalArgumentException ex,
             HttpServletRequest request) {
-        
+
         String errorId = UUID.randomUUID().toString();
         log.warn("Illegal argument [{}]: {}", errorId, ex.getMessage());
 

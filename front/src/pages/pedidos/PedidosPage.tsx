@@ -12,11 +12,13 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import { showConfirmModal } from '@/components/common/ConfirmModal';
 import { formatCurrency, formatDate } from '@/utils/format';
 import { PedidoFormModal } from '@/components/pedidos/PedidoFormModal';
+import { PedidoDetailView } from '@/components/pedidos/PedidoDetailView';
 
 const PedidosPage = () => {
   const [searchText, setSearchText] = useState('');
   const [estadoFilter, setEstadoFilter] = useState<EstadoPedido | 'TODOS'>('TODOS');
   const [modalOpen, setModalOpen] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState<Pedido | undefined>(undefined);
 
   const debouncedSearch = useDebounce(searchText, 300);
@@ -46,6 +48,16 @@ const PedidosPage = () => {
   const handleCloseModal = () => {
     setSelectedPedido(undefined);
     setModalOpen(false);
+  };
+
+  const handleViewDetail = (pedido: Pedido) => {
+    setSelectedPedido(pedido);
+    setDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setSelectedPedido(undefined);
+    setDetailModalOpen(false);
   };
 
   const handleSubmit = (data: PedidoFormData) => {
@@ -147,6 +159,7 @@ const PedidosPage = () => {
             type="text"
             icon={<EyeOutlined />}
             size="small"
+            onClick={() => handleViewDetail(record)}
             title="Ver detalle"
           />
           <Button
@@ -239,6 +252,12 @@ const PedidosPage = () => {
         onSubmit={handleSubmit}
         initialData={selectedPedido}
         loading={isCreating || isUpdating}
+      />
+
+      <PedidoDetailView
+        open={detailModalOpen}
+        onClose={handleCloseDetailModal}
+        pedido={selectedPedido || null}
       />
     </div>
   );

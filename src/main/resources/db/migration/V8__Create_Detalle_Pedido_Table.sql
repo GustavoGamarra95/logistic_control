@@ -1,7 +1,7 @@
 -- Migración V8: Crear tabla detalle_pedido
 -- Esta tabla almacena los ítems/detalles de cada pedido
 
-CREATE TABLE detalle_pedido (
+CREATE TABLE IF NOT EXISTS detalle_pedido (
     id BIGSERIAL PRIMARY KEY,
     pedido_id BIGINT NOT NULL,
     producto_id BIGINT NOT NULL,
@@ -18,9 +18,9 @@ CREATE TABLE detalle_pedido (
 );
 
 -- Índices para mejorar el rendimiento
-CREATE INDEX idx_detalle_pedido_pedido_id ON detalle_pedido(pedido_id);
-CREATE INDEX idx_detalle_pedido_producto_id ON detalle_pedido(producto_id);
-CREATE INDEX idx_detalle_pedido_is_active ON detalle_pedido(is_active);
+CREATE INDEX IF NOT EXISTS idx_detalle_pedido_pedido_id ON detalle_pedido(pedido_id);
+CREATE INDEX IF NOT EXISTS idx_detalle_pedido_producto_id ON detalle_pedido(producto_id);
+CREATE INDEX IF NOT EXISTS idx_detalle_pedido_is_active ON detalle_pedido(is_active);
 
 -- Comentarios para documentación
 COMMENT ON TABLE detalle_pedido IS 'Detalle/ítems de los pedidos, contiene los productos y cantidades de cada pedido';

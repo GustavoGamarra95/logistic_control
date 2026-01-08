@@ -26,6 +26,8 @@ public class ProductoResponse {
     private String paisOrigen;
     private Double valorUnitario;
     private String moneda;
+    private Integer tasaIva;
+    private Double precioVenta;
     private Boolean esPeligroso;
     private Boolean esPerecedero;
     private Boolean esFragil;

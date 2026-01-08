@@ -1,5 +1,5 @@
 export type TipoContenedor = '20FT' | '40FT' | '40HC' | '45FT' | 'REEFER20' | 'REEFER40';
-export type EstadoContenedor = 'DISPONIBLE' | 'EN_TRANSITO' | 'EN_PUERTO' | 'EN_DEPOSITO' | 'EN_CONSOLIDACION' | 'CERRADO' | 'DESPACHADO';
+export type EstadoContenedor = 'DISPONIBLE' | 'EN_TRANSITO' | 'EN_PUERTO' | 'EN_DEPOSITO' | 'EN_CONSOLIDACION' | 'CERRADO' | 'DESPACHADO' | 'EN_ADUANA';
 
 export interface Contenedor {
   id: number;

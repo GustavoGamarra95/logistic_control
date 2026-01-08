@@ -42,6 +42,11 @@ public class PedidoResponse {
     private Boolean requiereSeguro;
     private Double valorSeguro;
     private String observaciones;
+    private Double subTotal;
+    private Double iva;
+    private Double total;
+    private String direccionEntrega;
+    private String formaPago;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -1,24 +1,17 @@
 import { Modal, Form, Input, Select, InputNumber, Row, Col, DatePicker } from 'antd';
 import { useForm, Controller } from 'react-hook-form';
-import { CreateInventarioRequest, EstadoInventario } from '@/types/inventario.types';
+import { CreateInventarioRequest } from '@/types/inventario.types';
 import { useProductos } from '@/hooks/useProductos';
+import { useClientes } from '@/hooks/useClientes';
 import { useState } from 'react';
 import dayjs from 'dayjs';
 
 interface InventarioEntryModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateInventarioRequest) => void;
+  onSubmit: (data: CreateInventarioRequest) => Promise<void>;
   loading?: boolean;
 }
-
-const ESTADOS_INVENTARIO: { value: EstadoInventario; label: string }[] = [
-  { value: 'DISPONIBLE', label: 'Disponible' },
-  { value: 'RESERVADO', label: 'Reservado' },
-  { value: 'EN_CUARENTENA', label: 'En Cuarentena' },
-  { value: 'DAÑADO', label: 'Dañado' },
-  { value: 'VENCIDO', label: 'Vencido' },
-];
 
 // Estructura de ubicaciones de almacén
 const DEPOSITOS = ['PRINCIPAL', 'SECUNDARIO', 'TEMPORAL', 'REFRIGERADO'];
@@ -41,8 +34,9 @@ export const InventarioEntryModal = ({
     nivel: '',
   });
 
-  // Obtener productos
+  // Obtener productos y clientes
   const { productos, isLoading: loadingProductos } = useProductos({ page: 0, size: 100 });
+  const { clientes, isLoading: loadingClientes } = useClientes({ page: 0, size: 100 });
 
   const {
     control,
@@ -52,14 +46,10 @@ export const InventarioEntryModal = ({
     watch,
   } = useForm<CreateInventarioRequest>({
     defaultValues: {
+      clienteId: 0,
       productoId: 0,
-      almacenId: 1, // Almacén principal por defecto
-      ubicacion: '',
-      lote: '',
-      fechaIngreso: dayjs().format('YYYY-MM-DD'),
-      cantidadDisponible: 0,
-      estado: 'DISPONIBLE',
-      costoDiarioAlmacenaje: 0,
+      cantidad: 0,
+      costoAlmacenajeDiario: 0,
     },
   });
 
@@ -82,14 +72,29 @@ export const InventarioEntryModal = ({
     onClose();
   };
 
-  const onFormSubmit = (data: CreateInventarioRequest) => {
-    // Generar ubicación completa
-    const ubicacionCompleta = generarUbicacion();
-    onSubmit({
-      ...data,
-      ubicacion: ubicacionCompleta || data.ubicacion,
-    });
-    handleClose();
+  const onFormSubmit = async (data: CreateInventarioRequest) => {
+    // Preparar datos con ubicación dividida
+    const requestData: CreateInventarioRequest = {
+      clienteId: data.clienteId,
+      productoId: data.productoId,
+      cantidad: data.cantidad,
+      ubicacionDeposito: ubicacion.deposito || undefined,
+      zona: ubicacion.zona || undefined,
+      pasillo: ubicacion.pasillo || undefined,
+      rack: ubicacion.rack || undefined,
+      nivel: ubicacion.nivel || undefined,
+      lote: data.lote || undefined,
+      fechaVencimiento: data.fechaVencimiento || undefined,
+      costoAlmacenajeDiario: data.costoAlmacenajeDiario || undefined,
+      observaciones: data.observaciones || undefined,
+    };
+
+    try {
+      await onSubmit(requestData);
+      handleClose(); // Solo cerrar si fue exitoso
+    } catch (error) {
+      // El error se muestra en el hook, mantener el modal abierto
+    }
   };
 
   return (
@@ -105,7 +110,32 @@ export const InventarioEntryModal = ({
     >
       <Form layout="vertical" className="mt-4">
         <Row gutter={16}>
-          <Col span={24}>
+          <Col span={12}>
+            <Form.Item label="Cliente" required>
+              <Controller
+                name="clienteId"
+                control={control}
+                rules={{ required: true, min: 1 }}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    placeholder="Seleccione el cliente"
+                    loading={loadingClientes}
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                    }
+                    options={clientes?.map((cliente) => ({
+                      value: cliente.id,
+                      label: `${cliente.razonSocial} - ${cliente.ruc}`,
+                    }))}
+                  />
+                )}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
             <Form.Item label="Producto" required>
               <Controller
                 name="productoId"
@@ -135,7 +165,7 @@ export const InventarioEntryModal = ({
           <Col span={12}>
             <Form.Item label="Cantidad a Ingresar" required>
               <Controller
-                name="cantidadDisponible"
+                name="cantidad"
                 control={control}
                 rules={{ required: true, min: 1 }}
                 render={({ field }) => (
@@ -151,44 +181,12 @@ export const InventarioEntryModal = ({
           </Col>
 
           <Col span={12}>
-            <Form.Item label="Estado Inicial" required>
-              <Controller
-                name="estado"
-                control={control}
-                render={({ field }) => (
-                  <Select {...field} options={ESTADOS_INVENTARIO} />
-                )}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={12}>
             <Form.Item label="Lote/Batch">
               <Controller
                 name="lote"
                 control={control}
                 render={({ field }) => (
                   <Input {...field} placeholder="Ej: LOTE-2024-001" maxLength={50} />
-                )}
-              />
-            </Form.Item>
-          </Col>
-
-          <Col span={12}>
-            <Form.Item label="Fecha de Ingreso" required>
-              <Controller
-                name="fechaIngreso"
-                control={control}
-                render={({ field }) => (
-                  <DatePicker
-                    {...field}
-                    value={field.value ? dayjs(field.value) : dayjs()}
-                    onChange={(date) => field.onChange(date ? date.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'))}
-                    format="DD/MM/YYYY"
-                    className="w-full"
-                  />
                 )}
               />
             </Form.Item>
@@ -205,7 +203,7 @@ export const InventarioEntryModal = ({
                   <DatePicker
                     {...field}
                     value={field.value ? dayjs(field.value) : null}
-                    onChange={(date) => field.onChange(date ? date.format('YYYY-MM-DD') : null)}
+                    onChange={(date) => field.onChange(date ? date.toISOString() : null)}
                     format="DD/MM/YYYY"
                     placeholder="Opcional"
                     className="w-full"
@@ -218,7 +216,7 @@ export const InventarioEntryModal = ({
           <Col span={12}>
             <Form.Item label="Costo Diario Almacenaje">
               <Controller
-                name="costoDiarioAlmacenaje"
+                name="costoAlmacenajeDiario"
                 control={control}
                 render={({ field }) => (
                   <InputNumber
@@ -298,21 +296,6 @@ export const InventarioEntryModal = ({
             </div>
           )}
         </div>
-
-        {/* Ubicación Manual (alternativa) */}
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item label="Ubicación Manual (opcional)" help="Si no selecciona ubicación arriba, ingrese manualmente">
-              <Controller
-                name="ubicacion"
-                control={control}
-                render={({ field }) => (
-                  <Input {...field} placeholder="Ej: DEP-A-P01-R15-N3" maxLength={100} />
-                )}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
 
         <Row gutter={16}>
           <Col span={24}>

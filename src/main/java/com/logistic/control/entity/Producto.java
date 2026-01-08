@@ -62,6 +62,12 @@ public class Producto extends BaseEntity {
     @Column(name = "moneda", length = 10)
     private String moneda;
 
+    @Column(name = "tasa_iva")
+    private Integer tasaIva; // 0, 5 o 10 (porcentaje de IVA)
+
+    @Column(name = "precio_venta")
+    private Double precioVenta; // Precio de venta al público
+
     @Builder.Default
     @Column(name = "es_peligroso")
     private Boolean esPeligroso = false;

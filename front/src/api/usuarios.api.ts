@@ -72,6 +72,13 @@ export const usuariosApi = {
     return response.data;
   },
 
+  resetPassword: async (id: number, newPassword: string): Promise<Usuario> => {
+    const response = await apiClient.patch<Usuario>(`/usuarios/${id}/reset-password`, {
+      newPassword,
+    });
+    return response.data;
+  },
+
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(`/usuarios/${id}`);
   },

@@ -5,6 +5,7 @@ import { useInventario } from '@/hooks/useInventario';
 import { useProductos } from '@/hooks/useProductos';
 import { usePedidos } from '@/hooks/usePedidos';
 import { useState, useMemo } from 'react';
+import { formatDateTime } from '@/utils/format';
 
 interface InventarioExitModalProps {
   open: boolean;
@@ -172,9 +173,9 @@ export const InventarioExitModal = ({
                 <div><strong>Lote:</strong> {inventarioSeleccionado.lote || 'N/A'}</div>
                 <div><strong>Cantidad Disponible:</strong> {inventarioSeleccionado.cantidadDisponible}</div>
                 <div><strong>Cantidad Reservada:</strong> {inventarioSeleccionado.cantidadReservada}</div>
-                <div><strong>Fecha de Ingreso:</strong> {new Date(inventarioSeleccionado.fechaIngreso).toLocaleDateString('es-PY')}</div>
+                <div><strong>Fecha de Ingreso:</strong> {formatDateTime(inventarioSeleccionado.fechaIngreso)}</div>
                 {inventarioSeleccionado.fechaVencimiento && (
-                  <div><strong>Vencimiento:</strong> {new Date(inventarioSeleccionado.fechaVencimiento).toLocaleDateString('es-PY')}</div>
+                  <div><strong>Vencimiento:</strong> {formatDateTime(inventarioSeleccionado.fechaVencimiento)}</div>
                 )}
               </div>
             }

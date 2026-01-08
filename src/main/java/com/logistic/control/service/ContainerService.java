@@ -1,24 +1,26 @@
 package com.logistic.control.service;
 
-import com.logistic.control.dto.request.ContainerRequest;
-import com.logistic.control.dto.response.ContainerResponse;
-import com.logistic.control.entity.Container;
-import com.logistic.control.entity.Producto;
-import com.logistic.control.exception.ResourceNotFoundException;
-import com.logistic.control.exception.BusinessException;
-import com.logistic.control.exception.InvalidStateException;
-import com.logistic.control.repository.ContainerRepository;
-import com.logistic.control.repository.ProductoRepository;
-import com.logistic.control.security.InputSanitizer;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.List;
+import com.logistic.control.dto.request.ContainerRequest;
+import com.logistic.control.dto.response.ContainerResponse;
+import com.logistic.control.entity.Container;
+import com.logistic.control.entity.Producto;
+import com.logistic.control.exception.BusinessException;
+import com.logistic.control.exception.InvalidStateException;
+import com.logistic.control.exception.ResourceNotFoundException;
+import com.logistic.control.repository.ContainerRepository;
+import com.logistic.control.repository.ProductoRepository;
+import com.logistic.control.security.InputSanitizer;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Servicio para gestión de Containers
@@ -213,18 +215,75 @@ public class ContainerService {
                 .id(container.getId())
                 .numero(container.getNumero())
                 .tipo(container.getTipo())
-                .fechaSalida(container.getFechaSalida())
+                .estado(calcularEstado(container))
+                .pesoKg(container.getPesoKg())
+                .pesoMaximoKg(container.getPesoMaximoKg())
+                .volumenM3(container.getVolumenM3())
+                .volumenMaximoM3(container.getVolumenMaximoM3())
+                .empresaTransporte(container.getEmpresaTransporte())
                 .empresaNaviera(container.getEmpresaNaviera())
                 .buqueNombre(container.getBuqueNombre())
+                .viajeNumero(container.getViajeNumero())
+                .ruta(container.getRuta())
                 .puertoOrigen(container.getPuertoOrigen())
                 .puertoDestino(container.getPuertoDestino())
-                .numeroBl(container.getNumeroBl())
-                .pesoKg(container.getPesoKg())
-                .volumenM3(container.getVolumenM3())
+                .fechaSalida(container.getFechaSalida())
+                .fechaLlegadaEstimada(container.getFechaLlegadaEstimada())
+                .fechaLlegadaReal(container.getFechaLlegadaReal())
                 .consolidado(container.getConsolidado())
+                .enTransito(container.getEnTransito())
+                .enPuerto(container.getEnPuerto())
+                .enAduana(container.getEnAduana())
+                .liberado(container.getLiberado())
+                .numeroBl(container.getNumeroBl())
+                .fechaEmisionBl(container.getFechaEmisionBl())
+                .porcentajeOcupacionPeso(calcularPorcentajeOcupacionPeso(container))
+                .porcentajeOcupacionVolumen(calcularPorcentajeOcupacionVolumen(container))
                 .observaciones(container.getObservaciones())
                 .createdAt(container.getCreatedAt())
                 .updatedAt(container.getUpdatedAt())
                 .build();
+    }
+
+    /**
+     * Calcular estado del contenedor basado en flags booleanos
+     */
+    private String calcularEstado(Container container) {
+        if (Boolean.TRUE.equals(container.getLiberado())) {
+            return "DESPACHADO";
+        }
+        if (Boolean.TRUE.equals(container.getEnAduana())) {
+            return "EN_ADUANA";
+        }
+        if (Boolean.TRUE.equals(container.getEnPuerto())) {
+            return "EN_PUERTO";
+        }
+        if (Boolean.TRUE.equals(container.getEnTransito())) {
+            return "EN_TRANSITO";
+        }
+        if (Boolean.TRUE.equals(container.getConsolidado())) {
+            return "CERRADO";
+        }
+        return "EN_CONSOLIDACION";
+    }
+
+    /**
+     * Calcular porcentaje de ocupación de peso
+     */
+    private Double calcularPorcentajeOcupacionPeso(Container container) {
+        if (container.getPesoMaximoKg() != null && container.getPesoMaximoKg() > 0 && container.getPesoKg() != null) {
+            return (container.getPesoKg() / container.getPesoMaximoKg()) * 100;
+        }
+        return 0.0;
+    }
+
+    /**
+     * Calcular porcentaje de ocupación de volumen
+     */
+    private Double calcularPorcentajeOcupacionVolumen(Container container) {
+        if (container.getVolumenMaximoM3() != null && container.getVolumenMaximoM3() > 0 && container.getVolumenM3() != null) {
+            return (container.getVolumenM3() / container.getVolumenMaximoM3()) * 100;
+        }
+        return 0.0;
     }
 }

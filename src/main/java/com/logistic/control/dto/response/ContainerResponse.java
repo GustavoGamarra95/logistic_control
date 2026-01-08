@@ -1,6 +1,7 @@
 package com.logistic.control.dto.response;
 
 import com.logistic.control.enums.TipoContainer;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,11 +14,13 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ContainerResponse {
 
     private Long id;
     private String numero;
     private TipoContainer tipo;
+    private String estado; // Estado calculado basado en los flags booleanos
     private Double pesoKg;
     private Double pesoMaximoKg;
     private Double volumenM3;

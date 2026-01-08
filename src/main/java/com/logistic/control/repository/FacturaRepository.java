@@ -2,6 +2,8 @@ package com.logistic.control.repository;
 
 import com.logistic.control.entity.Factura;
 import com.logistic.control.enums.EstadoFactura;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,6 +18,16 @@ import java.util.Optional;
  */
 @Repository
 public interface FacturaRepository extends JpaRepository<Factura, Long> {
+
+    @Query("SELECT f FROM Factura f LEFT JOIN FETCH f.cliente LEFT JOIN FETCH f.detalles")
+    List<Factura> findAllWithCliente();
+
+    @Query(value = "SELECT DISTINCT f FROM Factura f LEFT JOIN FETCH f.cliente WHERE f.isActive = true",
+           countQuery = "SELECT COUNT(DISTINCT f) FROM Factura f WHERE f.isActive = true")
+    Page<Factura> findAllWithCliente(Pageable pageable);
+
+    @Query("SELECT f FROM Factura f LEFT JOIN FETCH f.cliente LEFT JOIN FETCH f.detalles WHERE f.id = :id")
+    Optional<Factura> findByIdWithCliente(@Param("id") Long id);
 
     Optional<Factura> findByNumeroFactura(String numeroFactura);
 

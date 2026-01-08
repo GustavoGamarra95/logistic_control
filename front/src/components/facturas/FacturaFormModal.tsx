@@ -6,6 +6,7 @@ import { facturaSchema, FacturaFormData, ItemFacturaFormData } from '@/schemas/f
 import { Factura, TipoFactura } from '@/types/factura.types';
 import { useClientes } from '@/hooks/useClientes';
 import { usePedidos } from '@/hooks/usePedidos';
+import { useProductos } from '@/hooks/useProductos';
 import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
@@ -49,10 +50,12 @@ export const FacturaFormModal = ({
   loading = false,
 }: FacturaFormModalProps) => {
   const [tipoFactura, setTipoFactura] = useState<TipoFactura>('CONTADO');
+  const [selectedProducto, setSelectedProducto] = useState<number | null>(null);
 
-  // Obtener clientes y pedidos
+  // Obtener clientes, pedidos y productos
   const { clientes, isLoading: loadingClientes } = useClientes({ page: 0, size: 100 });
   const { pedidos, isLoading: loadingPedidos } = usePedidos({ page: 0, size: 100 });
+  const { productos, isLoading: loadingProductos } = useProductos({ page: 0, size: 1000 });
 
   const {
     control,
@@ -72,14 +75,10 @@ export const FacturaFormModal = ({
           fechaVencimiento: initialData.fechaVencimiento
             ? dayjs(initialData.fechaVencimiento).format('YYYY-MM-DD')
             : undefined,
-          items: [],
+          items: initialData.items || [],
         }
       : {
-          clienteId: 0,
-          timbrado: '',
-          puntoExpedicion: '001',
-          establecimiento: '001',
-          tipo: 'CONTADO',
+          tipo: 'CONTADO' as const,
           fechaEmision: dayjs().format('YYYY-MM-DD'),
           moneda: 'PYG',
           items: [],
@@ -94,6 +93,7 @@ export const FacturaFormModal = ({
   // Watch items para calcular totales
   const items = watch('items');
   const tipo = watch('tipo');
+  const moneda = watch('moneda') || 'PYG';
 
   useEffect(() => {
     setTipoFactura(tipo);
@@ -131,23 +131,43 @@ export const FacturaFormModal = ({
   const handleClose = () => {
     reset();
     setTipoFactura('CONTADO');
+    setSelectedProducto(null);
     onClose();
   };
 
   const onFormSubmit = (data: FacturaFormData) => {
-    onSubmit(data);
+    // Limpiar campos opcionales vacíos
+    const cleanedData = {
+      ...data,
+      pedidoId: data.pedidoId && data.pedidoId > 0 ? data.pedidoId : undefined,
+      condicionPago: data.condicionPago?.trim() || undefined,
+      fechaVencimiento: data.fechaVencimiento || undefined,
+      observaciones: data.observaciones?.trim() || undefined,
+    };
+    onSubmit(cleanedData);
     handleClose();
   };
 
   const handleAddItem = () => {
+    if (!selectedProducto) {
+      return;
+    }
+
+    const producto = productos?.find(p => p.id === selectedProducto);
+    if (!producto) {
+      return;
+    }
+
     append({
-      codigo: '',
-      descripcion: '',
+      codigo: producto.codigo,
+      descripcion: producto.descripcion,
       cantidad: 1,
-      unidadMedida: 'UNI',
-      precioUnitario: 0,
-      tasaIva: 10,
+      unidadMedida: producto.unidadMedida || 'UNI',
+      precioUnitario: producto.precioVenta || producto.valorUnitario || 0,
+      tasaIva: producto.tasaIva || 10,
     });
+
+    setSelectedProducto(null);
   };
 
   const itemsColumns: ColumnsType<ItemFacturaFormData & { id: string }> = [
@@ -156,30 +176,20 @@ export const FacturaFormModal = ({
       dataIndex: 'codigo',
       key: 'codigo',
       width: 100,
-      render: (_, __, index) => (
-        <Controller
-          name={`items.${index}.codigo`}
-          control={control}
-          render={({ field }) => (
-            <Input {...field} placeholder="Código" size="small" />
-          )}
-        />
-      ),
+      render: (_, __, index) => {
+        const codigo = watch(`items.${index}.codigo`);
+        return <span className="text-sm">{codigo}</span>;
+      },
     },
     {
       title: 'Descripción',
       dataIndex: 'descripcion',
       key: 'descripcion',
       width: 250,
-      render: (_, __, index) => (
-        <Controller
-          name={`items.${index}.descripcion`}
-          control={control}
-          render={({ field }) => (
-            <Input {...field} placeholder="Descripción del ítem" size="small" status={errors.items?.[index]?.descripcion ? 'error' : ''} />
-          )}
-        />
-      ),
+      render: (_, __, index) => {
+        const descripcion = watch(`items.${index}.descripcion`);
+        return <span className="text-sm">{descripcion}</span>;
+      },
     },
     {
       title: 'Cantidad',
@@ -200,65 +210,44 @@ export const FacturaFormModal = ({
       title: 'Unidad',
       dataIndex: 'unidadMedida',
       key: 'unidadMedida',
-      width: 100,
-      render: (_, __, index) => (
-        <Controller
-          name={`items.${index}.unidadMedida`}
-          control={control}
-          render={({ field }) => (
-            <Select {...field} options={UNIDADES_MEDIDA} size="small" className="w-full" />
-          )}
-        />
-      ),
+      width: 80,
+      render: (_, __, index) => {
+        const unidad = watch(`items.${index}.unidadMedida`);
+        return <span className="text-sm">{unidad}</span>;
+      },
     },
     {
       title: 'Precio Unit.',
       dataIndex: 'precioUnitario',
       key: 'precioUnitario',
-      width: 120,
-      render: (_, __, index) => (
-        <Controller
-          name={`items.${index}.precioUnitario`}
-          control={control}
-          render={({ field }) => (
-            <InputNumber
-              {...field}
-              min={0}
-              size="small"
-              className="w-full"
-              formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={(value) => value!.replace(/,/g, '')}
-              status={errors.items?.[index]?.precioUnitario ? 'error' : ''}
-            />
-          )}
-        />
-      ),
+      width: 140,
+      align: 'right',
+      render: (_, __, index) => {
+        const precio = watch(`items.${index}.precioUnitario`);
+        return <span className="text-sm">{new Intl.NumberFormat('es-PY').format(precio || 0)} {moneda}</span>;
+      },
     },
     {
       title: 'IVA',
       dataIndex: 'tasaIva',
       key: 'tasaIva',
-      width: 100,
-      render: (_, __, index) => (
-        <Controller
-          name={`items.${index}.tasaIva`}
-          control={control}
-          render={({ field }) => (
-            <Select {...field} options={TASAS_IVA} size="small" className="w-full" />
-          )}
-        />
-      ),
+      width: 60,
+      align: 'center',
+      render: (_, __, index) => {
+        const iva = watch(`items.${index}.tasaIva`);
+        return <span className="text-sm">{iva}%</span>;
+      },
     },
     {
       title: 'Subtotal',
       key: 'subtotal',
-      width: 120,
+      width: 140,
       align: 'right',
       render: (_, __, index) => {
         const item = items?.[index];
-        if (!item) return 0;
+        if (!item) return '0 ' + moneda;
         const subtotal = item.cantidad * item.precioUnitario;
-        return new Intl.NumberFormat('es-PY').format(subtotal);
+        return `${new Intl.NumberFormat('es-PY').format(subtotal)} ${moneda}`;
       },
     },
     {
@@ -292,7 +281,7 @@ export const FacturaFormModal = ({
       <Form layout="vertical" className="mt-4">
         {/* Información Principal */}
         <Row gutter={16}>
-          <Col span={12}>
+          <Col span={8}>
             <Form.Item
               label="Cliente"
               validateStatus={errors.clienteId ? 'error' : ''}
@@ -321,7 +310,7 @@ export const FacturaFormModal = ({
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col span={8}>
             <Form.Item label="Pedido Relacionado">
               <Controller
                 name="pedidoId"
@@ -345,54 +334,28 @@ export const FacturaFormModal = ({
               />
             </Form.Item>
           </Col>
+
+          <Col span={8}>
+            <Form.Item label="Fecha Emisión" validateStatus={errors.fechaEmision ? 'error' : ''} help={errors.fechaEmision?.message}>
+              <Controller
+                name="fechaEmision"
+                control={control}
+                render={({ field }) => (
+                  <DatePicker
+                    {...field}
+                    value={field.value ? dayjs(field.value) : dayjs()}
+                    onChange={(date) => field.onChange(date ? date.format('YYYY-MM-DD') : null)}
+                    format="DD/MM/YYYY"
+                    placeholder="Seleccione fecha"
+                    className="w-full"
+                  />
+                )}
+              />
+            </Form.Item>
+          </Col>
         </Row>
 
         <Row gutter={16}>
-          <Col span={6}>
-            <Form.Item
-              label="Timbrado"
-              validateStatus={errors.timbrado ? 'error' : ''}
-              help={errors.timbrado?.message}
-              required
-            >
-              <Controller
-                name="timbrado"
-                control={control}
-                render={({ field }) => <Input {...field} placeholder="12345678" maxLength={20} />}
-              />
-            </Form.Item>
-          </Col>
-
-          <Col span={6}>
-            <Form.Item
-              label="Establecimiento"
-              validateStatus={errors.establecimiento ? 'error' : ''}
-              help={errors.establecimiento?.message}
-              required
-            >
-              <Controller
-                name="establecimiento"
-                control={control}
-                render={({ field }) => <Input {...field} placeholder="001" maxLength={10} />}
-              />
-            </Form.Item>
-          </Col>
-
-          <Col span={6}>
-            <Form.Item
-              label="Punto Expedición"
-              validateStatus={errors.puntoExpedicion ? 'error' : ''}
-              help={errors.puntoExpedicion?.message}
-              required
-            >
-              <Controller
-                name="puntoExpedicion"
-                control={control}
-                render={({ field }) => <Input {...field} placeholder="001" maxLength={10} />}
-              />
-            </Form.Item>
-          </Col>
-
           <Col span={6}>
             <Form.Item
               label="Tipo"
@@ -415,48 +378,6 @@ export const FacturaFormModal = ({
               />
             </Form.Item>
           </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={6}>
-            <Form.Item label="Fecha Emisión" validateStatus={errors.fechaEmision ? 'error' : ''} help={errors.fechaEmision?.message}>
-              <Controller
-                name="fechaEmision"
-                control={control}
-                render={({ field }) => (
-                  <DatePicker
-                    {...field}
-                    value={field.value ? dayjs(field.value) : dayjs()}
-                    onChange={(date) => field.onChange(date ? date.format('YYYY-MM-DD') : null)}
-                    format="DD/MM/YYYY"
-                    placeholder="Seleccione fecha"
-                    className="w-full"
-                  />
-                )}
-              />
-            </Form.Item>
-          </Col>
-
-          {tipoFactura === 'CREDITO' && (
-            <Col span={6}>
-              <Form.Item label="Fecha Vencimiento" validateStatus={errors.fechaVencimiento ? 'error' : ''} help={errors.fechaVencimiento?.message}>
-                <Controller
-                  name="fechaVencimiento"
-                  control={control}
-                  render={({ field }) => (
-                    <DatePicker
-                      {...field}
-                      value={field.value ? dayjs(field.value) : null}
-                      onChange={(date) => field.onChange(date ? date.format('YYYY-MM-DD') : null)}
-                      format="DD/MM/YYYY"
-                      placeholder="Seleccione fecha"
-                      className="w-full"
-                    />
-                  )}
-                />
-              </Form.Item>
-            </Col>
-          )}
 
           <Col span={6}>
             <Form.Item
@@ -473,30 +394,97 @@ export const FacturaFormModal = ({
             </Form.Item>
           </Col>
 
-          <Col span={tipoFactura === 'CREDITO' ? 6 : 12}>
-            <Form.Item label="Condición de Pago" validateStatus={errors.condicionPago ? 'error' : ''} help={errors.condicionPago?.message}>
-              <Controller
-                name="condicionPago"
-                control={control}
-                render={({ field }) => <Input {...field} placeholder="Ej: 30 días" maxLength={200} />}
-              />
-            </Form.Item>
-          </Col>
+          {tipoFactura === 'CREDITO' && (
+            <>
+              <Col span={6}>
+                <Form.Item label="Condición de Pago" validateStatus={errors.condicionPago ? 'error' : ''} help={errors.condicionPago?.message}>
+                  <Controller
+                    name="condicionPago"
+                    control={control}
+                    render={({ field }) => <Input {...field} placeholder="Ej: 30 días" maxLength={200} />}
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col span={6}>
+                <Form.Item label="Fecha Vencimiento" validateStatus={errors.fechaVencimiento ? 'error' : ''} help={errors.fechaVencimiento?.message}>
+                  <Controller
+                    name="fechaVencimiento"
+                    control={control}
+                    render={({ field }) => (
+                      <DatePicker
+                        {...field}
+                        value={field.value ? dayjs(field.value) : null}
+                        onChange={(date) => field.onChange(date ? date.format('YYYY-MM-DD') : null)}
+                        format="DD/MM/YYYY"
+                        placeholder="Seleccione fecha"
+                        className="w-full"
+                      />
+                    )}
+                  />
+                </Form.Item>
+              </Col>
+            </>
+          )}
         </Row>
 
         <Divider>Ítems de la Factura</Divider>
 
+        {/* Selector de Producto */}
+        <div className="mb-4">
+          <Row gutter={16}>
+            <Col span={20}>
+              <Select
+                value={selectedProducto}
+                onChange={setSelectedProducto}
+                placeholder="Buscar por código o descripción..."
+                loading={loadingProductos}
+                showSearch
+                allowClear
+                filterOption={(input, option) => {
+                  const searchTerm = input.toLowerCase();
+                  const label = (option?.label ?? '').toLowerCase();
+                  return label.includes(searchTerm);
+                }}
+                optionFilterProp="label"
+                className="w-full"
+              >
+                {productos?.map((producto) => {
+                  const precio = producto.precioVenta || producto.valorUnitario || 0;
+                  const moneda = producto.moneda || 'PYG';
+                  const precioFormateado = new Intl.NumberFormat('es-PY').format(precio);
+
+                  return (
+                    <Select.Option key={producto.id} value={producto.id}>
+                      <div className="flex justify-between items-center">
+                        <span className="flex-1">
+                          <strong>{producto.codigo}</strong> - {producto.descripcion}
+                        </span>
+                        <span className="ml-4 font-semibold text-blue-600">
+                          {precioFormateado} {moneda}
+                        </span>
+                      </div>
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Col>
+            <Col span={4}>
+              <Button
+                type="primary"
+                onClick={handleAddItem}
+                icon={<PlusOutlined />}
+                disabled={!selectedProducto}
+                block
+              >
+                Agregar
+              </Button>
+            </Col>
+          </Row>
+        </div>
+
         {/* Tabla de Ítems */}
         <div className="mb-4">
-          <Button
-            type="dashed"
-            onClick={handleAddItem}
-            icon={<PlusOutlined />}
-            className="mb-2"
-            block
-          >
-            Agregar Ítem
-          </Button>
 
           {errors.items && !Array.isArray(errors.items) && (
             <div className="text-red-500 text-sm mb-2">{errors.items.message}</div>
@@ -505,6 +493,7 @@ export const FacturaFormModal = ({
           <Table
             columns={itemsColumns}
             dataSource={fields}
+            rowKey="id"
             pagination={false}
             size="small"
             scroll={{ x: 900 }}
@@ -532,19 +521,19 @@ export const FacturaFormModal = ({
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="font-medium">Subtotal:</span>
-                    <span>{new Intl.NumberFormat('es-PY').format(totales.subtotal)}</span>
+                    <span>{new Intl.NumberFormat('es-PY').format(totales.subtotal)} {moneda}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">IVA 5%:</span>
-                    <span className="text-sm">{new Intl.NumberFormat('es-PY').format(totales.iva5)}</span>
+                    <span className="text-sm">{new Intl.NumberFormat('es-PY').format(totales.iva5)} {moneda}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">IVA 10%:</span>
-                    <span className="text-sm">{new Intl.NumberFormat('es-PY').format(totales.iva10)}</span>
+                    <span className="text-sm">{new Intl.NumberFormat('es-PY').format(totales.iva10)} {moneda}</span>
                   </div>
                   <div className="flex justify-between border-t pt-2">
                     <span className="font-bold">Total:</span>
-                    <span className="font-bold text-lg">{new Intl.NumberFormat('es-PY').format(totales.total)}</span>
+                    <span className="font-bold text-lg">{new Intl.NumberFormat('es-PY').format(totales.total)} {moneda}</span>
                   </div>
                 </div>
               </Col>

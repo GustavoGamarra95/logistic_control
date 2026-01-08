@@ -67,6 +67,7 @@ const ContenedoresPage = () => {
       EN_PUERTO: 'cyan',
       EN_DEPOSITO: 'purple',
       EN_CONSOLIDACION: 'orange',
+      EN_ADUANA: 'magenta',
       CERRADO: 'gold',
       DESPACHADO: 'default',
     };
@@ -198,7 +199,7 @@ const ContenedoresPage = () => {
       />
 
       <Card>
-        <Space direction="vertical" size="middle" className="w-full">
+        <Space vertical size="middle" className="w-full">
           <Input
             placeholder="Buscar por número de contenedor..."
             prefix={<SearchOutlined />}

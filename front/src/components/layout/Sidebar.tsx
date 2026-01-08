@@ -73,11 +73,11 @@ export const Sidebar = () => {
       label: 'Proveedores',
       onClick: () => navigate('/proveedores'),
     },
-    canAccess('usuarios') && {
-      key: '/usuarios',
+    {
+      key: '/configuracion',
       icon: <SettingOutlined />,
-      label: 'Usuarios',
-      onClick: () => navigate('/usuarios'),
+      label: 'Configuración',
+      onClick: () => navigate('/configuracion'),
     },
   ].filter(Boolean);
 

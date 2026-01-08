@@ -88,6 +88,8 @@ public class ProductoService {
                 .paisOrigen(request.getPaisOrigen())
                 .valorUnitario(request.getValorUnitario())
                 .moneda(request.getMoneda())
+                .tasaIva(request.getTasaIva())
+                .precioVenta(request.getPrecioVenta())
                 .esPeligroso(request.getEsPeligroso() != null ? request.getEsPeligroso() : false)
                 .esPerecedero(request.getEsPerecedero() != null ? request.getEsPerecedero() : false)
                 .esFragil(request.getEsFragil() != null ? request.getEsFragil() : false)
@@ -137,6 +139,8 @@ public class ProductoService {
         producto.setPaisOrigen(request.getPaisOrigen());
         producto.setValorUnitario(request.getValorUnitario());
         producto.setMoneda(request.getMoneda());
+        producto.setTasaIva(request.getTasaIva());
+        producto.setPrecioVenta(request.getPrecioVenta());
         producto.setTemperaturaMin(request.getTemperaturaMin());
         producto.setTemperaturaMax(request.getTemperaturaMax());
         producto.setObservaciones(request.getObservaciones());
@@ -221,6 +225,8 @@ public class ProductoService {
                 .paisOrigen(producto.getPaisOrigen())
                 .valorUnitario(producto.getValorUnitario())
                 .moneda(producto.getMoneda())
+                .tasaIva(producto.getTasaIva())
+                .precioVenta(producto.getPrecioVenta())
                 .esPeligroso(producto.getEsPeligroso())
                 .esPerecedero(producto.getEsPerecedero())
                 .esFragil(producto.getEsFragil())

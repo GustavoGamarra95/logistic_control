@@ -12,6 +12,7 @@ public enum EstadoPedido {
     EN_DEPOSITO("En Depósito"),
     EN_REPARTO("En Reparto"),
     ENTREGADO("Entregado"),
+    FACTURADO("Facturado"),
     CANCELADO("Cancelado"),
     DEVUELTO("Devuelto");
 

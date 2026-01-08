@@ -17,6 +17,7 @@ export interface Pedido {
   codigoTracking: string;
   fechaRegistro: string;
   clienteId: number;
+  clienteNombre?: string;
   paisOrigen: string;
   paisDestino: string;
   ciudadOrigen?: string;

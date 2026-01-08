@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { pedidoSchema, PedidoFormData } from '@/schemas/pedido.schema';
 import { Pedido, TipoCarga } from '@/types/pedido.types';
 import { getPaises, getCiudadesPorPais, getAllCiudades } from '@/utils/geo-data';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { useClientes } from '@/hooks/useClientes';
 
@@ -97,6 +97,45 @@ export const PedidoFormModal = ({
     }
     return getAllCiudades();
   }, [paisDestinoActual]);
+
+  // Actualizar el formulario cuando cambien los datos iniciales o se abra el modal
+  useEffect(() => {
+    if (open) {
+      if (initialData) {
+        // Modo edición: cargar datos del pedido
+        const formData: PedidoFormData = {
+          ...initialData,
+          fechaEstimadaLlegada: initialData.fechaEstimadaLlegada
+            ? dayjs(initialData.fechaEstimadaLlegada).format('YYYY-MM-DD')
+            : undefined,
+        };
+        reset(formData);
+        setPaisOrigen(initialData.paisOrigen || '');
+        setPaisDestino(initialData.paisDestino || '');
+        setRequiresSeguro(initialData.requiereSeguro || false);
+      } else {
+        // Modo creación: valores por defecto
+        reset({
+          clienteId: 0,
+          paisOrigen: '',
+          paisDestino: '',
+          ciudadOrigen: '',
+          ciudadDestino: '',
+          tipoCarga: 'FCL',
+          descripcionMercaderia: '',
+          pesoTotalKg: 0,
+          volumenTotalM3: 0,
+          valorDeclarado: 0,
+          moneda: 'PYG',
+          requiereSeguro: false,
+          valorSeguro: 0,
+        });
+        setPaisOrigen('');
+        setPaisDestino('');
+        setRequiresSeguro(false);
+      }
+    }
+  }, [open, initialData, reset]);
 
   const handleClose = () => {
     reset();
@@ -460,17 +499,15 @@ export const PedidoFormModal = ({
             </Form.Item>
           </Col>
 
-          {requiresSeguro && (
-            <Col span={12}>
-              <Form.Item label="Valor del Seguro" validateStatus={errors.valorSeguro ? 'error' : ''} help={errors.valorSeguro?.message}>
-                <Controller
-                  name="valorSeguro"
-                  control={control}
-                  render={({ field }) => <InputNumber {...field} placeholder="0.00" min={0} className="w-full" formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />}
-                />
-              </Form.Item>
-            </Col>
-          )}
+          <Col span={12} style={{ display: requiresSeguro ? 'block' : 'none' }}>
+            <Form.Item label="Valor del Seguro" validateStatus={errors.valorSeguro ? 'error' : ''} help={errors.valorSeguro?.message}>
+              <Controller
+                name="valorSeguro"
+                control={control}
+                render={({ field }) => <InputNumber {...field} placeholder="0.00" min={0} className="w-full" formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />}
+              />
+            </Form.Item>
+          </Col>
         </Row>
 
         {/* Observaciones */}

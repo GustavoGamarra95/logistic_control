@@ -31,6 +31,17 @@ public class DetalleFactura {
     @JoinColumn(name = "producto_id")
     private Producto producto;
 
+    /**
+     * Referencia al detalle de pedido original (para rastrear facturación parcial).
+     * Permite saber de qué detalle de pedido proviene este ítem de factura.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "detalle_pedido_id")
+    private DetallePedido detallePedido;
+
+    @Column(name = "codigo", length = 50)
+    private String codigo;
+
     @NotBlank(message = "Descripción es requerida")
     @Column(name = "descripcion", nullable = false, length = 500)
     private String descripcion;

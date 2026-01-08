@@ -1,0 +1,221 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "loading": "Cargando...",
+    "noData": "No hay datos",
+    "actions": "Acciones",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "yes": "Sí",
+    "no": "No",
+    "total": "Total",
+    "date": "Fecha",
+    "status": "Estado",
+    "description": "Descripción",
+    "details": "Detalles"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "clientes": "Clientes",
+    "pedidos": "Pedidos",
+    "contenedores": "Contenedores",
+    "productos": "Productos",
+    "inventario": "Inventario",
+    "facturas": "Facturas",
+    "proveedores": "Proveedores",
+    "usuarios": "Usuarios",
+    "reportes": "Reportes",
+    "settings": "Configuración"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Panel de control y métricas del sistema",
+    "pedidosActivos": "Pedidos Activos",
+    "facturas": "Facturas",
+    "inventario": "Inventario",
+    "clientes": "Clientes",
+    "recentOrders": "Pedidos Recientes",
+    "recentInvoices": "Facturas Recientes",
+    "lowStock": "Productos con Stock Bajo",
+    "stockAlert": "Alerta de Inventario"
+  },
+  "pedidos": {
+    "title": "Gestión de Pedidos",
+    "subtitle": "Seguimiento y control de pedidos de importación/exportación",
+    "nuevo": "Nuevo Pedido",
+    "codigoTracking": "Código de Tracking",
+    "cliente": "Cliente",
+    "origen": "Origen",
+    "destino": "Destino",
+    "estado": "Estado",
+    "tipoCarga": "Tipo de Carga",
+    "peso": "Peso",
+    "volumen": "Volumen",
+    "valorDeclarado": "Valor Declarado",
+    "estados": {
+      "REGISTRADO": "Registrado",
+      "EN_TRANSITO": "En Tránsito",
+      "RECIBIDO": "Recibido",
+      "EN_ADUANA": "En Aduana",
+      "LIBERADO": "Liberado",
+      "EN_DEPOSITO": "En Depósito",
+      "EN_REPARTO": "En Reparto",
+      "ENTREGADO": "Entregado",
+      "CANCELADO": "Cancelado",
+      "DEVUELTO": "Devuelto"
+    }
+  },
+  "facturas": {
+    "title": "Gestión de Facturas",
+    "subtitle": "Facturación electrónica con SIFEN",
+    "nueva": "Nueva Factura",
+    "numero": "Número",
+    "timbrado": "Timbrado",
+    "enviarSIFEN": "Enviar a SIFEN",
+    "estados": {
+      "BORRADOR": "Borrador",
+      "EMITIDA": "Emitida",
+      "ENVIADA_SIFEN": "Enviada a SIFEN",
+      "APROBADA": "Aprobada",
+      "RECHAZADA": "Rechazada",
+      "ANULADA": "Anulada",
+      "PAGADA": "Pagada",
+      "VENCIDA": "Vencida"
+    }
+  },
+  "inventario": {
+    "title": "Gestión de Inventario",
+    "subtitle": "Control de stock y almacenamiento",
+    "nuevaEntrada": "Nueva Entrada",
+    "registrarSalida": "Registrar Salida",
+    "ubicacion": "Ubicación",
+    "lote": "Lote",
+    "disponible": "Disponible",
+    "reservado": "Reservado",
+    "estados": {
+      "DISPONIBLE": "Disponible",
+      "RESERVADO": "Reservado",
+      "EN_CUARENTENA": "En Cuarentena",
+      "DAÑADO": "Dañado",
+      "VENCIDO": "Vencido"
+    }
+  },
+  "reportes": {
+    "title": "Reportes",
+    "subtitle": "Generación de reportes e informes del sistema",
+    "seleccione": "Seleccione un Reporte",
+    "generar": "Generar",
+    "vistaPrevia": "Vista Previa",
+    "descargar": "Descargar",
+    "pdf": "PDF",
+    "excel": "Excel"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "rememberMe": "Recordarme",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "invalidCredentials": "Credenciales inválidas"
+  },
+  "messages": {
+    "success": {
+      "created": "Creado exitosamente",
+      "updated": "Actualizado exitosamente",
+      "deleted": "Eliminado exitosamente",
+      "saved": "Guardado exitosamente"
+    },
+    "error": {
+      "generic": "Ocurrió un error",
+      "network": "Error de conexión",
+      "notFound": "No encontrado",
+      "unauthorized": "No autorizado"
+    },
+    "confirm": {
+      "delete": "¿Está seguro que desea eliminar?",
+      "cancel": "¿Está seguro que desea cancelar?"
+    }
+  },
+  "configuracion": {
+    "title": "Configuración",
+    "subtitle": "Personaliza tus preferencias del sistema",
+    "tabs": {
+      "general": "General",
+      "facturacion": "Facturación",
+      "usuarios": "Gestión de Usuarios"
+    },
+    "apariencia": {
+      "title": "Apariencia",
+      "theme": "Tema",
+      "themeDescription": "Cambiar entre modo claro y oscuro",
+      "language": "Idioma",
+      "languageDescription": "Selecciona tu idioma preferido"
+    },
+    "notificaciones": {
+      "title": "Notificaciones",
+      "push": "Notificaciones Push",
+      "pushDescription": "Recibe notificaciones en tiempo real",
+      "email": "Notificaciones por Email",
+      "emailDescription": "Recibe resúmenes por correo electrónico",
+      "sound": "Sonido",
+      "soundDescription": "Reproducir sonidos para notificaciones"
+    },
+    "general": {
+      "title": "General",
+      "autoSave": "Auto-guardado",
+      "autoSaveDescription": "Guardar cambios automáticamente",
+      "itemsPerPage": "Elementos por página",
+      "defaultView": "Vista predeterminada"
+    },
+    "sifen": {
+      "title": "Configuración SIFEN",
+      "subtitle": "Sistema Integrado de Facturación Electrónica Nacional",
+      "verificar": "Verificar Conexión",
+      "verificando": "Verificando...",
+      "guardar": "Guardar Configuración",
+      "ambiente": "Ambiente",
+      "ambienteTest": "Pruebas",
+      "ambienteProduccion": "Producción",
+      "rucEmisor": "RUC del Emisor",
+      "razonSocial": "Razón Social",
+      "nombreFantasia": "Nombre de Fantasía",
+      "certificado": "Certificado Digital",
+      "certificadoPassword": "Contraseña del Certificado",
+      "timbrado": "Número de Timbrado",
+      "establecimiento": "Código de Establecimiento",
+      "puntoExpedicion": "Punto de Expedición",
+      "apiUrl": "URL de la API",
+      "apiToken": "Token de API",
+      "estado": "Estado de Conexión",
+      "conectado": "Conectado",
+      "desconectado": "Desconectado"
+    },
+    "usuarios": {
+      "buscar": "Buscar usuarios...",
+      "total": "Total de usuarios",
+      "username": "Username",
+      "nombre": "Nombre",
+      "email": "Email",
+      "roles": "Roles",
+      "estado": "Estado",
+      "activo": "Activo",
+      "acciones": "Acciones",
+      "editar": "Editar",
+      "bloquear": "Bloquear",
+      "desbloquear": "Desbloquear",
+      "estados": {
+        "bloqueado": "Bloqueado",
+        "inactivo": "Inactivo",
+        "activo": "Activo"
+      }
+    }
+  }
+}

@@ -4,27 +4,27 @@ export interface Producto {
   id: number;
   codigo: string;
   descripcion: string;
-  ncmArancel?: string;
-  categoria?: string;
-  tipo: TipoProducto;
-  esPeligroso: boolean;
-  esPerecedero: boolean;
-  esFragil: boolean;
-  requiereRefrigeracion: boolean;
-  temperaturaMinimaC?: number;
-  temperaturaMaximaC?: number;
-  pesoUnitarioKg: number;
-  volumenUnitarioM3: number;
-  alto?: number;
-  ancho?: number;
-  largo?: number;
-  unidadMedida: string;
-  valorUnitario: number;
-  moneda: string;
-  numeroONU?: string;
-  claseIMO?: string;
-  grupoEmbalaje?: string;
+  descripcionDetallada?: string;
+  codigoNcm?: string;
+  codigoArancel?: string;
+  pesoKg: number;
+  volumenM3?: number;
+  unidadMedida?: string;
+  cantidadPorUnidad?: number;
+  paisOrigen?: string;
+  valorUnitario?: number;
+  moneda?: string;
+  tasaIva?: number; // 0, 5 o 10
+  precioVenta?: number; // Precio de venta al público
+  esPeligroso?: boolean;
+  esPerecedero?: boolean;
+  esFragil?: boolean;
+  requiereRefrigeracion?: boolean;
+  temperaturaMin?: number;
+  temperaturaMax?: number;
   observaciones?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateProductoRequest extends Omit<Producto, 'id'> {}

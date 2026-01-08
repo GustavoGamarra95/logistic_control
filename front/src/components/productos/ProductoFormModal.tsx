@@ -140,7 +140,14 @@ export const ProductoFormModal = ({
               name="pesoUnitarioKg"
               rules={[{ required: true, message: 'Ingrese el peso' }]}
             >
-              <InputNumber min={0} step={0.01} className="w-full" placeholder="0.00" />
+              <InputNumber
+                min={0}
+                step={0.01}
+                className="w-full"
+                placeholder="0.00"
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value) => value!.replace(/,/g, '')}
+              />
             </Form.Item>
           </Col>
 
@@ -150,7 +157,14 @@ export const ProductoFormModal = ({
               name="volumenUnitarioM3"
               rules={[{ required: true, message: 'Ingrese el volumen' }]}
             >
-              <InputNumber min={0} step={0.001} className="w-full" placeholder="0.000" />
+              <InputNumber
+                min={0}
+                step={0.001}
+                className="w-full"
+                placeholder="0.000"
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value) => value!.replace(/,/g, '')}
+              />
             </Form.Item>
           </Col>
 
@@ -159,7 +173,13 @@ export const ProductoFormModal = ({
               label="Alto (cm)"
               name="alto"
             >
-              <InputNumber min={0} className="w-full" placeholder="0" />
+              <InputNumber
+                min={0}
+                className="w-full"
+                placeholder="0"
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value) => value!.replace(/,/g, '')}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -170,7 +190,13 @@ export const ProductoFormModal = ({
               label="Ancho (cm)"
               name="ancho"
             >
-              <InputNumber min={0} className="w-full" placeholder="0" />
+              <InputNumber
+                min={0}
+                className="w-full"
+                placeholder="0"
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value) => value!.replace(/,/g, '')}
+              />
             </Form.Item>
           </Col>
 
@@ -179,7 +205,13 @@ export const ProductoFormModal = ({
               label="Largo (cm)"
               name="largo"
             >
-              <InputNumber min={0} className="w-full" placeholder="0" />
+              <InputNumber
+                min={0}
+                className="w-full"
+                placeholder="0"
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value) => value!.replace(/,/g, '')}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -189,14 +221,40 @@ export const ProductoFormModal = ({
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Valor Unitario"
+              label="Valor Unitario (Costo)"
               name="valorUnitario"
               rules={[{ required: true, message: 'Ingrese el valor' }]}
             >
-              <InputNumber min={0} step={1000} className="w-full" placeholder="0" />
+              <InputNumber
+                min={0}
+                step={1000}
+                className="w-full"
+                placeholder="0"
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value) => value!.replace(/,/g, '')}
+              />
             </Form.Item>
           </Col>
 
+          <Col span={12}>
+            <Form.Item
+              label="Precio de Venta"
+              name="precioVenta"
+              rules={[{ required: true, message: 'Ingrese el precio de venta' }]}
+            >
+              <InputNumber
+                min={0}
+                step={1000}
+                className="w-full"
+                placeholder="0"
+                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value) => value!.replace(/,/g, '')}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
           <Col span={12}>
             <Form.Item
               label="Moneda"
@@ -208,6 +266,21 @@ export const ProductoFormModal = ({
                 <Select.Option value="PYG">Guaraníes (₲)</Select.Option>
                 <Select.Option value="USD">Dólares ($)</Select.Option>
                 <Select.Option value="EUR">Euros (€)</Select.Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="IVA"
+              name="tasaIva"
+              rules={[{ required: true, message: 'Seleccione el IVA' }]}
+              initialValue={10}
+            >
+              <Select placeholder="Tasa de IVA">
+                <Select.Option value={0}>Exento (0%)</Select.Option>
+                <Select.Option value={5}>IVA 5%</Select.Option>
+                <Select.Option value={10}>IVA 10%</Select.Option>
               </Select>
             </Form.Item>
           </Col>

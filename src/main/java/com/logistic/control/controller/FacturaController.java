@@ -1,13 +1,18 @@
 package com.logistic.control.controller;
 
 import com.logistic.control.dto.request.FacturaRequest;
+import com.logistic.control.dto.request.FacturaParcialRequest;
 import com.logistic.control.dto.request.SifenDocumentoRequest;
 import com.logistic.control.dto.response.*;
 import com.logistic.control.entity.Cliente;
+import com.logistic.control.entity.DetallePedido;
 import com.logistic.control.entity.Factura;
+import com.logistic.control.entity.Pedido;
 import com.logistic.control.enums.EstadoFactura;
 import com.logistic.control.repository.ClienteRepository;
 import com.logistic.control.repository.FacturaRepository;
+import com.logistic.control.repository.PedidoRepository;
+import com.logistic.control.service.FacturaService;
 import com.logistic.control.service.SifenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +23,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +38,8 @@ public class FacturaController {
 
     private final FacturaRepository facturaRepository;
     private final ClienteRepository clienteRepository;
+    private final PedidoRepository pedidoRepository;
+    private final FacturaService facturaService;
     private final SifenService sifenService;
 
     @GetMapping
@@ -112,31 +121,107 @@ public class FacturaController {
 
     @PostMapping
     public ResponseEntity<FacturaResponse> crearFactura(@Valid @RequestBody FacturaRequest request) {
-        Cliente cliente = clienteRepository.findById(request.getClienteId())
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-
-        Factura factura = toEntity(request, cliente);
-        Factura saved = facturaRepository.save(factura);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
+        FacturaResponse factura = facturaService.crearFactura(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(factura);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<FacturaResponse> actualizarFactura(
-            @PathVariable Long id,
-            @Valid @RequestBody FacturaRequest request) {
-        return facturaRepository.findById(id)
-                .map(factura -> {
-                    if (factura.getEstado() == EstadoFactura.APROBADA) {
-                        throw new RuntimeException("No se puede modificar una factura aprobada");
-                    }
-                    Cliente cliente = clienteRepository.findById(request.getClienteId())
-                            .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-                    updateEntity(factura, request, cliente);
-                    Factura updated = facturaRepository.save(factura);
-                    return ResponseEntity.ok(toResponse(updated));
+    /**
+     * Crear factura parcial desde pedido.
+     * Permite facturar cantidades específicas de cada ítem del pedido.
+     */
+    @PostMapping("/parcial")
+    public ResponseEntity<FacturaResponse> crearFacturaParcial(
+            @Valid @RequestBody FacturaParcialRequest request) {
+        FacturaResponse factura = facturaService.crearFacturaParcial(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(factura);
+    }
+
+    /**
+     * Listar pedidos que tienen al menos un ítem pendiente de facturar.
+     * Útil para mostrar en el módulo de facturación.
+     */
+    @GetMapping("/pedidos-pendientes")
+    public ResponseEntity<List<PedidoResponse>> listarPedidosPendientesDeFacturar() {
+        List<Pedido> pedidos = pedidoRepository.findPedidosPendientesDeFacturar();
+        List<PedidoResponse> response = pedidos.stream()
+                .map(this::toPedidoResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Obtener información de facturación de un pedido.
+     * Incluye porcentaje facturado y cantidad pendiente por ítem.
+     */
+    @GetMapping("/pedidos/{pedidoId}/facturacion")
+    public ResponseEntity<Map<String, Object>> obtenerInfoFacturacionPedido(
+            @PathVariable Long pedidoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+        Boolean completamenteFacturado = pedidoRepository.isPedidoCompletamenteFacturado(pedidoId);
+
+        // Calcular totales
+        int totalItems = pedido.getDetalles().size();
+        int itemsCompletamenteFacturados = (int) pedido.getDetalles().stream()
+                .filter(DetallePedido::estaCompletamenteFacturado)
+                .count();
+
+        int cantidadTotal = pedido.getDetalles().stream()
+                .mapToInt(DetallePedido::getCantidad)
+                .sum();
+
+        int cantidadFacturada = pedido.getDetalles().stream()
+                .mapToInt(d -> d.getCantidadFacturada() != null ? d.getCantidadFacturada() : 0)
+                .sum();
+
+        int cantidadPendiente = cantidadTotal - cantidadFacturada;
+
+        double porcentajeFacturado = cantidadTotal > 0
+                ? (cantidadFacturada * 100.0 / cantidadTotal)
+                : 0.0;
+
+        // Construir respuesta
+        Map<String, Object> info = new HashMap<>();
+        info.put("pedidoId", pedidoId);
+        info.put("completamenteFacturado", completamenteFacturado);
+        info.put("porcentajeFacturado", Math.round(porcentajeFacturado * 100.0) / 100.0);
+        info.put("cantidadTotal", cantidadTotal);
+        info.put("cantidadFacturada", cantidadFacturada);
+        info.put("cantidadPendiente", cantidadPendiente);
+        info.put("totalItems", totalItems);
+        info.put("itemsCompletamenteFacturados", itemsCompletamenteFacturados);
+        info.put("itemsPendientes", totalItems - itemsCompletamenteFacturados);
+
+        // Detalle por ítem
+        List<Map<String, Object>> detalleItems = pedido.getDetalles().stream()
+                .map(detalle -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("detallePedidoId", detalle.getId());
+                    item.put("productoId", detalle.getProducto().getId());
+                    item.put("productoDescripcion", detalle.getProducto().getDescripcion());
+                    item.put("cantidad", detalle.getCantidad());
+                    item.put("cantidadFacturada", detalle.getCantidadFacturada());
+                    item.put("cantidadPendiente", detalle.getCantidadPendienteFacturar());
+                    item.put("porcentajeFacturado", Math.round(detalle.getPorcentajeFacturado() * 100.0) / 100.0);
+                    item.put("completamenteFacturado", detalle.estaCompletamenteFacturado());
+                    return item;
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .collect(Collectors.toList());
+
+        info.put("detalles", detalleItems);
+
+        return ResponseEntity.ok(info);
     }
+
+    // Actualización de facturas deshabilitada temporalmente - las facturas se generan completas
+    // @PutMapping("/{id}")
+    // public ResponseEntity<FacturaResponse> actualizarFactura(
+    //         @PathVariable Long id,
+    //         @Valid @RequestBody FacturaRequest request) {
+    //     // TODO: Implementar actualización con ítems
+    //     throw new UnsupportedOperationException("La actualización de facturas aún no está implementada");
+    // }
 
     @PatchMapping("/{id}/calcular-totales")
     public ResponseEntity<FacturaResponse> calcularTotales(@PathVariable Long id) {
@@ -328,34 +413,6 @@ public class FacturaController {
 
     // ============= FIN ENDPOINTS SIFEN =============
 
-    private Factura toEntity(FacturaRequest request, Cliente cliente) {
-        Factura factura = Factura.builder()
-                .cliente(cliente)
-                .subtotal(request.getSubtotal())
-                .descuento(request.getDescuento() != null ? request.getDescuento() : 0.0)
-                .moneda(request.getMoneda() != null ? request.getMoneda() : "PYG")
-                .timbrado(request.getTimbrado())
-                .establecimiento(request.getEstablecimiento())
-                .puntoExpedicion(request.getPuntoExpedicion())
-                .observaciones(request.getObservaciones())
-                .build();
-
-        factura.calcularTotales();
-        return factura;
-    }
-
-    private void updateEntity(Factura factura, FacturaRequest request, Cliente cliente) {
-        factura.setCliente(cliente);
-        factura.setSubtotal(request.getSubtotal());
-        factura.setDescuento(request.getDescuento() != null ? request.getDescuento() : 0.0);
-        factura.setMoneda(request.getMoneda() != null ? request.getMoneda() : "PYG");
-        factura.setTimbrado(request.getTimbrado());
-        factura.setEstablecimiento(request.getEstablecimiento());
-        factura.setPuntoExpedicion(request.getPuntoExpedicion());
-        factura.setObservaciones(request.getObservaciones());
-        factura.calcularTotales();
-    }
-
     private FacturaResponse toResponse(Factura factura) {
         return FacturaResponse.builder()
                 .id(factura.getId())
@@ -387,6 +444,48 @@ public class FacturaController {
                 .observaciones(factura.getObservaciones())
                 .createdAt(factura.getCreatedAt())
                 .updatedAt(factura.getUpdatedAt())
+                .build();
+    }
+
+    /**
+     * Helper para convertir Pedido a PedidoResponse.
+     * Usado para listar pedidos pendientes de facturar.
+     */
+    private PedidoResponse toPedidoResponse(Pedido pedido) {
+        return PedidoResponse.builder()
+                .id(pedido.getId())
+                .clienteId(pedido.getCliente().getId())
+                .clienteNombre(pedido.getCliente().getRazonSocial())
+                .fechaRegistro(pedido.getFechaRegistro())
+                .tipoCarga(pedido.getTipoCarga())
+                .paisOrigen(pedido.getPaisOrigen())
+                .paisDestino(pedido.getPaisDestino())
+                .ciudadOrigen(pedido.getCiudadOrigen())
+                .ciudadDestino(pedido.getCiudadDestino())
+                .descripcionMercaderia(pedido.getDescripcionMercaderia())
+                .numeroContenedorGuia(pedido.getNumeroContenedorGuia())
+                .estado(pedido.getEstado())
+                .codigoTracking(pedido.getCodigoTracking())
+                .fechaEstimadaLlegada(pedido.getFechaEstimadaLlegada())
+                .fechaLlegadaReal(pedido.getFechaLlegadaReal())
+                .pesoTotalKg(pedido.getPesoTotalKg())
+                .volumenTotalM3(pedido.getVolumenTotalM3())
+                .valorDeclarado(pedido.getValorDeclarado())
+                .moneda(pedido.getMoneda())
+                .numeroBlAwb(pedido.getNumeroBlAwb())
+                .puertoEmbarque(pedido.getPuertoEmbarque())
+                .puertoDestino(pedido.getPuertoDestino())
+                .empresaTransporte(pedido.getEmpresaTransporte())
+                .requiereSeguro(pedido.getRequiereSeguro())
+                .valorSeguro(pedido.getValorSeguro())
+                .observaciones(pedido.getObservaciones())
+                .subTotal(pedido.getSubTotal() != null ? pedido.getSubTotal().doubleValue() : null)
+                .iva(pedido.getIva() != null ? pedido.getIva().doubleValue() : null)
+                .total(pedido.getTotal() != null ? pedido.getTotal().doubleValue() : null)
+                .direccionEntrega(pedido.getDireccionEntrega())
+                .formaPago(pedido.getFormaPago())
+                .createdAt(pedido.getCreatedAt())
+                .updatedAt(pedido.getUpdatedAt())
                 .build();
     }
 }

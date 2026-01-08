@@ -97,6 +97,19 @@ export const useUsuarios = (params?: QueryParams) => {
     },
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: ({ id, newPassword }: { id: number; newPassword: string }) =>
+      usuariosApi.resetPassword(id, newPassword),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
+      message.success('Contraseña restablecida exitosamente');
+    },
+    onError: (error: any) => {
+      const errorMsg = error.response?.data?.message || 'Error al restablecer contraseña';
+      message.error(errorMsg);
+    },
+  });
+
   return {
     usuarios: (data as any)?.content || [],
     pagination: {
@@ -114,6 +127,7 @@ export const useUsuarios = (params?: QueryParams) => {
     desactivarUsuario: desactivarMutation.mutate,
     bloquearUsuario: bloquearMutation.mutate,
     desbloquearUsuario: desbloquearMutation.mutate,
+    resetPassword: resetPasswordMutation.mutate,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,

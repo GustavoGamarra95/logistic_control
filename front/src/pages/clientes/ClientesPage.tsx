@@ -185,7 +185,7 @@ const ClientesPage = () => {
       />
 
       <Card>
-        <Space direction="vertical" size="middle" className="w-full">
+        <Space vertical size="middle" className="w-full">
           <Input
             placeholder="Buscar por razón social, RUC o email..."
             prefix={<SearchOutlined />}

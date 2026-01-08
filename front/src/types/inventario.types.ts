@@ -3,21 +3,31 @@ export type EstadoInventario = 'DISPONIBLE' | 'RESERVADO' | 'EN_CUARENTENA' | 'D
 
 export interface Inventario {
   id: number;
+  clienteId?: number;
+  clienteNombre?: string;
   productoId: number;
-  almacenId: number;
-  almacenNombre?: string;
-  ubicacion: string;
+  productoDescripcion?: string;
+  ubicacionDeposito?: string;
+  zona?: string;
+  pasillo?: string;
+  rack?: string;
+  nivel?: string;
+  ubicacion: string; // Campo calculado que concatena todos los campos de ubicación
   lote?: string;
-  fechaIngreso: string;
+  fechaIngreso?: string;
+  fechaEntrada?: string; // Alias para fechaIngreso
+  fechaSalida?: string;
   fechaVencimiento?: string;
+  cantidad: number;
   cantidadDisponible: number;
   cantidadReservada: number;
-  cantidadTotal: number;
   estado: EstadoInventario;
-  costoDiarioAlmacenaje: number;
-  costoTotalAlmacenaje: number;
-  diasAlmacenados: number;
+  diasAlmacenaje?: number;
+  costoAlmacenajeDiario?: number;
+  costoAlmacenajeTotal?: number;
   observaciones?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface MovimientoInventario {
@@ -33,7 +43,20 @@ export interface MovimientoInventario {
   observaciones?: string;
 }
 
-export interface CreateInventarioRequest extends Omit<Inventario, 'id' | 'cantidadReservada' | 'cantidadTotal' | 'costoTotalAlmacenaje' | 'diasAlmacenados' | 'almacenNombre'> {}
+export interface CreateInventarioRequest {
+  clienteId: number;
+  productoId: number;
+  ubicacionDeposito?: string;
+  zona?: string;
+  pasillo?: string;
+  rack?: string;
+  nivel?: string;
+  cantidad: number;
+  lote?: string;
+  fechaVencimiento?: string;
+  costoAlmacenajeDiario?: number;
+  observaciones?: string;
+}
 
 export interface CreateMovimientoRequest {
   inventarioId: number;

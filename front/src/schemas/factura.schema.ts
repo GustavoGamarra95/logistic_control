@@ -14,12 +14,6 @@ export const facturaSchema = z.object({
 
   pedidoId: z.number().optional(),
 
-  timbrado: z.string().min(8, 'Timbrado inválido').max(20),
-
-  puntoExpedicion: z.string().min(3, 'Punto de expedición requerido').max(10),
-
-  establecimiento: z.string().min(3, 'Establecimiento requerido').max(10),
-
   tipo: z.enum(['CONTADO', 'CREDITO'], {
     errorMap: () => ({ message: 'Tipo de factura inválido' }),
   }),

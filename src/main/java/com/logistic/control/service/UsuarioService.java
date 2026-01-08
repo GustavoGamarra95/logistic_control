@@ -329,6 +329,27 @@ public class UsuarioService {
     }
 
     /**
+     * Restablecer contraseña de usuario
+     */
+    @Transactional
+    public UsuarioResponse resetPassword(Long id, String newPassword) {
+        log.info("Restableciendo contraseña para usuario ID: {}", id);
+
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new BusinessException("La contraseña debe tener al menos 8 caracteres");
+        }
+
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", id));
+
+        usuario.setPassword(passwordEncoder.encode(newPassword));
+        usuario = usuarioRepository.save(usuario);
+
+        log.info("Contraseña restablecida exitosamente para usuario: {}", usuario.getUsername());
+        return toResponse(usuario);
+    }
+
+    /**
      * Convertir entidad a DTO de respuesta
      */
     private UsuarioResponse toResponse(Usuario usuario) {
@@ -342,6 +363,7 @@ public class UsuarioService {
                 .telefono(usuario.getTelefono())
                 .roles(usuario.getRoles())
                 .enabled(usuario.getEnabled())
+                .accountNonLocked(usuario.isAccountNonLocked())
                 .createdAt(usuario.getCreatedAt())
                 .updatedAt(usuario.getUpdatedAt())
                 .build();

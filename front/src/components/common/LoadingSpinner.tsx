@@ -13,11 +13,13 @@ export const LoadingSpinner = ({
   tip = 'Cargando...'
 }: LoadingSpinnerProps) => {
   const spinner = (
-    <Spin 
-      size={size} 
-      indicator={<LoadingOutlined spin />}
-      tip={tip}
-    />
+    <div className="flex flex-col items-center gap-2">
+      <Spin 
+        size={size} 
+        indicator={<LoadingOutlined spin />}
+      />
+      {tip && <span className="text-sm text-gray-600">{tip}</span>}
+    </div>
   );
 
   if (fullscreen) {

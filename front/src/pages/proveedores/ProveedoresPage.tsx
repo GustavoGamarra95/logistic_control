@@ -129,7 +129,7 @@ const ProveedoresPage = () => {
         extra={<Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>Nuevo Proveedor</Button>}
       />
       <Card>
-        <Space direction="vertical" size="middle" className="w-full">
+        <Space vertical size="middle" className="w-full">
           <Input
             placeholder="Buscar por nombre, RUC o tipo..."
             prefix={<SearchOutlined />}

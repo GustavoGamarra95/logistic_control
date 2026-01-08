@@ -5,9 +5,9 @@ export type EstadoPago = 'PENDIENTE' | 'PARCIAL' | 'PAGADO' | 'VENCIDO';
 export interface Factura {
   id: number;
   numeroFactura: string;
-  timbrado: string;
-  puntoExpedicion: string;
-  establecimiento: string;
+  timbrado?: string;
+  puntoExpedicion?: string;
+  establecimiento?: string;
   numeroDocumento: string;
   fechaEmision: string;
   fechaVencimiento?: string;
@@ -26,6 +26,8 @@ export interface Factura {
   saldoPendiente: number;
   condicionPago?: string;
   observaciones?: string;
+  // Items de la factura
+  items?: ItemFactura[];
   // SIFEN fields
   cdc?: string;
   qrData?: string;
@@ -38,22 +40,22 @@ export interface Factura {
 
 export interface ItemFactura {
   id: number;
-  facturaId: number;
-  numeroItem: number;
+  facturaId?: number;
+  numeroItem?: number;
   codigo?: string;
   descripcion: string;
   cantidad: number;
   unidadMedida: string;
   precioUnitario: number;
   tasaIva: number;
-  montoIva: number;
-  subtotal: number;
-  total: number;
+  montoIva?: number;
+  subtotal?: number;
+  total?: number;
   pedidoId?: number;
 }
 
-export interface CreateFacturaRequest extends Omit<Factura, 'id' | 'numeroFactura' | 'cdc' | 'qrData' | 'xmlUrl' | 'pdfUrl' | 'estadoSifen' | 'fechaEnvioSifen' | 'mensajeSifen' | 'clienteRazonSocial' | 'clienteRuc' | 'saldoPendiente'> {
-  items: Omit<ItemFactura, 'id' | 'facturaId' | 'montoIva' | 'subtotal' | 'total'>[];
+export interface CreateFacturaRequest extends Omit<Factura, 'id' | 'numeroFactura' | 'cdc' | 'qrData' | 'xmlUrl' | 'pdfUrl' | 'estadoSifen' | 'fechaEnvioSifen' | 'mensajeSifen' | 'clienteRazonSocial' | 'clienteRuc' | 'saldoPendiente' | 'items'> {
+  items: Omit<ItemFactura, 'id' | 'facturaId' | 'montoIva' | 'subtotal' | 'total' | 'numeroItem'>[];
 }
 
 export interface UpdateFacturaRequest extends Partial<Omit<CreateFacturaRequest, 'items'>> {

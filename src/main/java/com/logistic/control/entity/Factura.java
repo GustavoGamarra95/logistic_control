@@ -1,6 +1,7 @@
 package com.logistic.control.entity;
 
 import com.logistic.control.enums.EstadoFactura;
+import com.logistic.control.enums.TipoFactura;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -44,9 +45,22 @@ public class Factura extends BaseEntity {
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id")
     private Pedido pedido;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_factura", length = 50)
+    @Builder.Default
+    private TipoFactura tipoFactura = TipoFactura.FACTURA_VENTA;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "factura_original_id")
+    private Factura facturaOriginal;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "devolucion_id")
+    private DevolucionVenta devolucion;
 
     @Column(name = "subtotal", nullable = false)
     private Double subtotal;
@@ -73,6 +87,12 @@ public class Factura extends BaseEntity {
 
     @Column(name = "tipo_cambio")
     private Double tipoCambio;
+
+    @Column(name = "tipo", length = 20)
+    private String tipo; // CONTADO o CREDITO
+
+    @Column(name = "condicion_pago", length = 200)
+    private String condicionPago; // Ej: "30 días", "Pago contra entrega", etc.
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
@@ -203,6 +223,37 @@ public class Factura extends BaseEntity {
 
     public void anular() {
         this.estado = EstadoFactura.ANULADA;
+    }
+
+    /**
+     * Verifica si esta factura es una nota de crédito.
+     */
+    public boolean esNotaCredito() {
+        return this.tipoFactura == TipoFactura.NOTA_CREDITO;
+    }
+
+    /**
+     * Valida que una nota de crédito tenga los datos correctos.
+     */
+    public void validarNotaCredito() {
+        if (!esNotaCredito()) {
+            return;
+        }
+
+        if (facturaOriginal == null) {
+            throw new IllegalStateException("Una nota de crédito debe tener una factura original");
+        }
+
+        if (this.total > facturaOriginal.getTotal()) {
+            throw new IllegalStateException(
+                String.format("El total de la nota de crédito (%.2f) no puede exceder el total de la factura original (%.2f)",
+                             this.total, facturaOriginal.getTotal())
+            );
+        }
+
+        if (devolucion == null) {
+            throw new IllegalStateException("Una nota de crédito debe estar asociada a una devolución");
+        }
     }
 
     @PrePersist

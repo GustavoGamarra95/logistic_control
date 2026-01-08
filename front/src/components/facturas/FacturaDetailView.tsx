@@ -5,7 +5,7 @@ import {
   SendOutlined,
   SyncOutlined,
   DownloadOutlined,
-  FilePdfOutlined,
+  PrinterOutlined,
   FileZipOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
@@ -14,6 +14,9 @@ import {
 import { Factura, ItemFactura, EstadoFactura } from '@/types/factura.types';
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/format';
 import type { ColumnsType } from 'antd/es/table';
+import { useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
+import { FacturaPrintView } from './FacturaPrintView';
 
 interface FacturaDetailViewProps {
   open: boolean;
@@ -56,6 +59,13 @@ export const FacturaDetailView = ({
   onDescargarXML,
   loadingSifen = false,
 }: FacturaDetailViewProps) => {
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Factura-${factura?.numeroFactura || 'DRAFT'}`,
+  });
+
   if (!factura) return null;
 
   const itemsColumns: ColumnsType<ItemFactura> = [
@@ -143,11 +153,9 @@ export const FacturaDetailView = ({
       footer={
         <Space>
           <Button onClick={onClose}>Cerrar</Button>
-          {onDescargarPDF && (
-            <Button icon={<FilePdfOutlined />} onClick={onDescargarPDF}>
-              PDF
-            </Button>
-          )}
+          <Button icon={<PrinterOutlined />} onClick={handlePrint} type="primary">
+            Imprimir
+          </Button>
           {sifenEnviado && onDescargarXML && (
             <Button icon={<FileZipOutlined />} onClick={onDescargarXML}>
               XML
@@ -194,7 +202,7 @@ export const FacturaDetailView = ({
         >
           {!sifenEnviado ? (
             <Alert
-              message="Factura no enviada a SIFEN"
+              title="Factura no enviada a SIFEN"
               description="Esta factura aún no ha sido enviada al sistema SIFEN. Haga clic en 'Enviar a SIFEN' para procesarla."
               type="warning"
               showIcon
@@ -412,6 +420,11 @@ export const FacturaDetailView = ({
             </Col>
           </Row>
         </Card>
+      </div>
+
+      {/* Hidden Print Component */}
+      <div style={{ display: 'none' }}>
+        <FacturaPrintView ref={printRef} factura={factura} items={items} />
       </div>
     </Modal>
   );

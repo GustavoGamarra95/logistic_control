@@ -1,5 +1,6 @@
 package com.logistic.control.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.logistic.control.enums.EstadoInventario;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -38,4 +41,30 @@ public class InventarioResponse {
     private String observaciones;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    /**
+     * Genera la ubicación completa concatenando todos los campos de ubicación
+     * Formato: DEPOSITO-ZONA-PASILLO-RACK-NIVEL
+     */
+    public String getUbicacion() {
+        List<String> parts = new ArrayList<>();
+
+        if (ubicacionDeposito != null && !ubicacionDeposito.isEmpty()) {
+            parts.add(ubicacionDeposito);
+        }
+        if (zona != null && !zona.isEmpty()) {
+            parts.add(zona);
+        }
+        if (pasillo != null && !pasillo.isEmpty()) {
+            parts.add(pasillo);
+        }
+        if (rack != null && !rack.isEmpty()) {
+            parts.add(rack);
+        }
+        if (nivel != null && !nivel.isEmpty()) {
+            parts.add(nivel);
+        }
+
+        return parts.isEmpty() ? "SIN UBICACIÓN" : String.join("-", parts);
+    }
 }

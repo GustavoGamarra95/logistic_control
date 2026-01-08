@@ -40,6 +40,10 @@ public class ProductoRequest {
 
     private String moneda;
 
+    private Integer tasaIva; // 0, 5 o 10
+
+    private Double precioVenta; // Precio de venta al público
+
     private Boolean esPeligroso;
 
     private Boolean esPerecedero;
